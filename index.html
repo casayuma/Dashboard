@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Casa Yuma — Briefing Diario</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sand:#F4EDD8; --sand2:#EDE3C8;
+  --charcoal:#252520; --charcoal2:#3D3D36;
+  --muted:#8A8070; --white:#FDFAF2;
+  --border:rgba(37,37,32,0.11);
+  --terra:#BF6840; --terra2:#D4845C;
+  --teal:#2A6B6E; --teal2:#3A8A8E;
+  --green:#2E7D4E; --red:#B83232; --orange:#C07820;
+  --radius:14px; --radius-sm:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{font-size:15px;}
+body{font-family:'DM Sans',sans-serif;background:var(--sand);color:var(--charcoal);min-height:100dvh;}
+
+/* ── LOADING SCREEN ── */
+#loading-screen{
+  min-height:100dvh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:24px;
+  padding:32px;
+}
+.loading-logo{font-family:'Cormorant Garamond',serif;font-size:2.4rem;letter-spacing:0.14em;color:var(--charcoal);text-align:center;}
+.loading-logo em{color:var(--terra);font-style:normal;}
+.loading-spinner{
+  width:40px;height:40px;border-radius:50%;
+  border:3px solid var(--sand2);
+  border-top-color:var(--terra);
+  animation:spin 0.9s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-msg{font-size:0.78rem;color:var(--muted);text-align:center;line-height:1.6;}
+.loading-step{font-size:0.68rem;color:var(--terra2);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;}
+
+/* ── ERROR SCREEN ── */
+#error-screen{
+  min-height:100dvh;display:none;flex-direction:column;
+  align-items:center;justify-content:center;gap:20px;padding:32px;text-align:center;
+}
+#error-screen.show{display:flex;}
+.err-icon{font-size:3rem;}
+.err-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;color:var(--charcoal);}
+.err-msg{font-size:0.78rem;color:var(--muted);line-height:1.6;max-width:320px;}
+.err-retry{
+  background:var(--charcoal);color:var(--sand);border:none;
+  border-radius:var(--radius-sm);padding:12px 24px;
+  font-size:0.85rem;font-weight:600;font-family:'DM Sans',sans-serif;
+  cursor:pointer;margin-top:8px;
+}
+
+/* ── DASHBOARD ── */
+#dashboard-screen{display:none;}
+body.dash #loading-screen{display:none;}
+body.dash #dashboard-screen{display:block;}
+
+.top-bar{background:var(--charcoal);padding:13px 16px 11px;display:flex;align-items:flex-end;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.logo{font-family:'Cormorant Garamond',serif;font-size:1.45rem;letter-spacing:0.1em;color:var(--sand);line-height:1;}
+.logo em{color:var(--terra2);font-style:normal;}
+.top-right{display:flex;align-items:flex-end;gap:10px;}
+.top-meta{text-align:right;}
+.top-date{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);line-height:1.4;}
+.top-time{font-size:0.68rem;color:var(--sand2);font-weight:500;}
+.refresh-btn{background:none;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:4px 9px;color:var(--muted);font-size:0.6rem;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;}
+
+.briefing-banner{background:var(--terra);color:var(--white);padding:9px 16px;display:flex;align-items:center;gap:8px;font-size:0.68rem;letter-spacing:0.05em;text-transform:uppercase;font-weight:600;}
+.pulse-dot{width:7px;height:7px;background:#FFD580;border-radius:50%;animation:blink 2s infinite;flex-shrink:0;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.quote-bar{
+  background:var(--charcoal);
+  padding:12px 18px;
+  text-align:center;
+  display:none;
+}
+.quote-bar.show{display:block;}
+.quote-text{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1rem;
+  font-style:italic;
+  font-weight:600;
+  color:var(--sand);
+  line-height:1.5;
+}
+
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--charcoal);display:flex;z-index:200;padding-bottom:env(safe-area-inset-bottom,0px);border-top:1px solid rgba(255,255,255,0.07);}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 2px 7px;cursor:pointer;border:none;background:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.48rem;font-weight:500;letter-spacing:0.03em;text-transform:uppercase;gap:3px;transition:color 0.15s;position:relative;}
+.nav-item.active{color:var(--terra2);}
+.nav-item.active::after{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:var(--terra2);border-radius:0 0 2px 2px;}
+.nav-icon{font-size:1.2rem;line-height:1;}
+
+main{padding:0;padding-bottom:88px;}
+.section{display:none;}
+.section.active{display:block;}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px 14px 0;}
+.kpi{background:var(--white);border-radius:var(--radius-sm);padding:12px 10px 10px;border:1px solid var(--border);position:relative;overflow:hidden;}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.kpi.k-occ::before{background:var(--teal);}
+.kpi.k-cout::before{background:var(--red);}
+.kpi.k-cin::before{background:var(--green);}
+.kpi-lbl{font-size:0.54rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:600;margin-bottom:4px;}
+.kpi-val{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;line-height:1;color:var(--charcoal);}
+.kpi-val.sm{font-size:1.7rem;}
+.kpi-sub{font-size:0.55rem;color:var(--muted);margin-top:3px;line-height:1.3;}
+
+.sec-head{padding:18px 14px 8px;display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;color:var(--charcoal);}
+.sec-count{font-size:0.63rem;background:var(--charcoal);color:var(--sand);padding:3px 9px;border-radius:20px;font-weight:500;white-space:nowrap;}
+
+.search-wrap{padding:0 14px 10px;}
+.search-input{width:100%;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);font-size:0.85rem;font-family:'DM Sans',sans-serif;color:var(--charcoal);outline:none;}
+.search-input:focus{border-color:var(--teal);}
+
+.pills{display:flex;gap:6px;padding:0 14px 12px;overflow-x:auto;scrollbar-width:none;}
+.pills::-webkit-scrollbar{display:none;}
+.pill{padding:5px 12px;border-radius:20px;font-size:0.63rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;flex-shrink:0;transition:all 0.15s;}
+.pill.on{background:var(--charcoal);color:var(--sand);border-color:var(--charcoal);}
+
+.cards{padding:0 14px;display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+.card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;}
+.card-top{display:flex;align-items:flex-start;gap:10px;padding:12px 14px 10px;}
+.room-pill{font-size:0.7rem;font-weight:700;padding:5px 10px;border-radius:6px;letter-spacing:0.04em;flex-shrink:0;margin-top:1px;}
+.rG{background:#D4F0D8;color:#1A5C2A;}
+.rR{background:#FFDECE;color:#7A300A;}
+.rO{background:#D0E8F8;color:#0F4070;}
+.rS{background:#E8DEFA;color:#3A1880;}
+.rX{background:#E8E8E0;color:#555550;}
+.card-info{flex:1;min-width:0;}
+.guest-name{font-weight:600;font-size:0.92rem;color:var(--charcoal);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.guest-meta{font-size:0.68rem;color:var(--muted);margin-top:3px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
+.tag{display:inline-flex;align-items:center;font-size:0.6rem;font-weight:700;letter-spacing:0.03em;padding:2px 7px;border-radius:4px;}
+.tag-inhouse{background:#D0EDF0;color:var(--teal);}
+.tag-confirmed{background:#FDECD0;color:var(--orange);}
+.tag-checkout{background:#FAD8D8;color:var(--red);}
+.tag-arriving{background:#D0F0DC;color:var(--green);}
+.tag-staying{background:#D0EDF0;color:var(--teal);}
+.tag-eta{background:#FFF3CD;color:#7A5800;font-size:0.65rem;padding:3px 8px;border-radius:5px;font-weight:700;display:inline-flex;align-items:center;gap:3px;}
+.tag-hes{background:#FAD8D8;color:var(--red);font-size:0.65rem;padding:3px 8px;border-radius:5px;font-weight:700;display:inline-flex;align-items:center;gap:3px;}
+.card-dates{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--border);}
+.date-cell{padding:8px 14px;display:flex;flex-direction:column;gap:2px;}
+.date-cell:first-child{border-right:1px solid var(--border);}
+.date-label{font-size:0.53rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:600;}
+.date-val{font-weight:500;color:var(--charcoal2);font-size:0.82rem;}
+.card-type{border-top:1px solid var(--border);padding:7px 14px;font-size:0.68rem;color:var(--muted);}
+.card-type strong{color:var(--charcoal2);}
+.nights-tag{background:var(--sand2);color:var(--charcoal2);padding:1px 6px;border-radius:4px;font-size:0.6rem;font-weight:600;}
+.res-card-date{font-size:0.65rem;font-weight:600;color:var(--terra);padding:6px 14px 0;letter-spacing:0.04em;}
+.tag-tmrw{background:#FFF3CD;color:#7A5800;font-size:0.6rem;padding:2px 6px;border-radius:4px;font-weight:700;}
+.tag-res-rest{background:#D4F0D8;color:#1A5C2A;}
+.tag-res-day{background:#D0E8F8;color:#0F4070;}
+.tag-res-spa{background:#E8DEFA;color:#3A1880;}
+.tag-res-ot{background:#FFDECE;color:#7A300A;}
+.tag-confirmada{background:#D4F0D8;color:#1A5C2A;}
+.tag-pendiente{background:#FDECD0;color:var(--orange);}
+.tag-cancelada{background:#FAD8D8;color:var(--red);}
+
+.card-comment{border-top:1px solid var(--border);padding:8px 14px;}
+.comment-row{display:flex;align-items:flex-start;gap:8px;}
+.comment-text{flex:1;font-size:0.72rem;color:var(--terra);font-style:italic;line-height:1.4;}
+.comment-empty{flex:1;color:var(--muted);font-size:0.68rem;}
+.edit-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.65rem;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;flex-shrink:0;}
+.comment-edit{display:none;flex-direction:column;gap:6px;margin-top:6px;}
+.comment-edit.open{display:flex;}
+.comment-ta{width:100%;padding:8px 10px;border:1.5px solid var(--teal);border-radius:6px;font-size:0.82rem;font-family:'DM Sans',sans-serif;background:var(--white);resize:none;outline:none;min-height:56px;}
+.comment-btns{display:flex;gap:6px;}
+.btn-save{flex:1;background:var(--teal);color:white;border:none;border-radius:6px;padding:9px;font-size:0.75rem;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;}
+.btn-cancel{background:var(--sand2);color:var(--charcoal2);border:none;border-radius:6px;padding:9px 14px;font-size:0.75rem;font-family:'DM Sans',sans-serif;cursor:pointer;}
+
+.divider{display:flex;align-items:center;gap:10px;padding:22px 14px 6px;}
+.divider-line{flex:1;height:2px;background:var(--border);}
+.divider-lbl{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);font-weight:700;white-space:nowrap;}
+.resumen-title{font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:600;color:var(--charcoal);padding:4px 14px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.resumen-title .sec-count{font-size:0.68rem;}
+
+.occ-wrap{padding:0 14px;}
+.occ-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:8px;overflow:hidden;}
+.occ-inner{display:grid;grid-template-columns:72px 1fr 50px;align-items:center;gap:10px;padding:10px 14px;}
+.occ-lbl{font-size:0.68rem;color:var(--muted);font-weight:500;white-space:nowrap;}
+.occ-lbl.today-lbl{color:var(--terra);font-weight:700;}
+.bar-track{background:var(--sand2);border-radius:4px;height:16px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;}
+.bar-past{background:var(--teal);opacity:0.75;}
+.bar-today{background:var(--terra);}
+.bar-future{background:var(--teal2);opacity:0.35;}
+.occ-num{font-weight:700;font-size:0.82rem;text-align:right;}
+.occ-sub{padding:0 14px 8px;font-size:0.6rem;color:var(--muted);}
+.occ-sub strong{color:var(--charcoal2);}
+.empty-state{text-align:center;padding:2rem;color:var(--muted);font-size:0.8rem;}
+
+.last-updated{text-align:center;font-size:0.6rem;color:var(--muted);padding:8px;opacity:0.7;}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-screen">
+  <div class="loading-logo">CASA <em>YUMA</em></div>
+  <div class="loading-spinner"></div>
+  <div class="loading-step" id="loading-step">Cargando datos…</div>
+  <div class="loading-msg">Obteniendo el reporte del día<br>desde Google Sheets</div>
+</div>
+
+<!-- ERROR -->
+<div id="error-screen">
+  <div class="err-icon">⚠️</div>
+  <div class="err-title">No se pudo cargar</div>
+  <div class="err-msg" id="err-detail">Verifica tu conexión a internet e intenta de nuevo.</div>
+  <button class="err-retry" onclick="location.reload()">Intentar de nuevo</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard-screen">
+  <div class="top-bar">
+    <div class="logo">CASA <em>YUMA</em></div>
+    <div class="top-right">
+      <div class="top-meta">
+        <div class="top-date" id="topDate"></div>
+        <div class="top-time">Briefing 6:00 AM</div>
+      </div>
+      <button class="refresh-btn" onclick="location.reload()">↻ Actualizar</button>
+    </div>
+  </div>
+  <div class="briefing-banner">
+    <div class="pulse-dot"></div>
+    <span id="banner-txt">Reporte matutino del día</span>
+  </div>
+  <div class="quote-bar" id="quote-bar">
+    <div class="quote-text" id="quote-text"></div>
+  </div>
+
+  <main>
+    <!-- RESUMEN -->
+    <div class="section active" id="s-resumen">
+      <div class="kpi-row">
+        <div class="kpi k-occ"><div class="kpi-lbl">Ocupación</div><div class="kpi-val" id="kpi-occ">—</div><div class="kpi-sub" id="kpi-occ-sub">—</div></div>
+        <div class="kpi k-cout"><div class="kpi-lbl">Salidas</div><div class="kpi-val sm" id="kpi-cout">—</div><div class="kpi-sub">Hoy</div></div>
+        <div class="kpi k-cin"><div class="kpi-lbl">Llegadas</div><div class="kpi-val sm" id="kpi-cin">—</div><div class="kpi-sub">Hoy</div></div>
+      </div>
+
+      <div class="divider" style="padding-top:24px;"><div class="divider-line"></div><div class="divider-lbl">Llegan hoy</div><div class="divider-line"></div></div>
+      <div class="resumen-title"><span>🌅 Llegadas</span><span class="sec-count" id="cnt-rarr">—</span></div>
+      <div class="pills"><button class="pill on" onclick="filterType('r-arriving','all',this)">Todos</button><button class="pill" onclick="filterType('r-arriving','G',this)">🌿 Garden</button><button class="pill" onclick="filterType('r-arriving','R',this)">🌇 Rooftop</button><button class="pill" onclick="filterType('r-arriving','O',this)">🌊 Ocean</button><button class="pill" onclick="filterType('r-arriving','S',this)">🛏 Standard</button></div>
+      <div class="cards" id="r-arriving"></div>
+
+      <div class="divider"><div class="divider-line"></div><div class="divider-lbl">Check-outs · hoy</div><div class="divider-line"></div></div>
+      <div class="resumen-title"><span>🧳 Salen hoy</span><span class="sec-count" style="background:var(--red);" id="cnt-rco">—</span></div>
+      <div class="pills"><button class="pill on" onclick="filterType('r-checkouts','all',this)">Todos</button><button class="pill" onclick="filterType('r-checkouts','G',this)">🌿 Garden</button><button class="pill" onclick="filterType('r-checkouts','R',this)">🌇 Rooftop</button><button class="pill" onclick="filterType('r-checkouts','O',this)">🌊 Ocean</button><button class="pill" onclick="filterType('r-checkouts','S',this)">🛏 Standard</button></div>
+      <div class="cards" id="r-checkouts"></div>
+
+      <div class="divider"><div class="divider-line"></div><div class="divider-lbl">Continúan · se quedan en el hotel</div><div class="divider-line"></div></div>
+      <div class="resumen-title"><span>🏠 Continúan</span><span class="sec-count" style="background:var(--teal);" id="stay-cnt">—</span></div>
+      <div class="pills"><button class="pill on" onclick="filterType('r-staying','all',this)">Todos</button><button class="pill" onclick="filterType('r-staying','G',this)">🌿 Garden</button><button class="pill" onclick="filterType('r-staying','R',this)">🌇 Rooftop</button><button class="pill" onclick="filterType('r-staying','O',this)">🌊 Ocean</button><button class="pill" onclick="filterType('r-staying','S',this)">🛏 Standard</button></div>
+      <div class="cards" id="r-staying"></div>
+      <div class="last-updated" id="last-updated"></div>
+    </div>
+
+    <!-- LLEGADAS -->
+    <div class="section" id="s-llegadas">
+      <div class="sec-head"><div class="sec-title">🌅 Llegadas · hoy</div><div class="sec-count" id="cnt-arr">—</div></div>
+      <div class="search-wrap"><input class="search-input" type="search" placeholder="Buscar huésped o habitación…" oninput="filterC('arr-cards',this.value)"></div>
+      <div class="cards" id="arr-cards"></div>
+    </div>
+
+    <!-- SALIDAS -->
+    <div class="section" id="s-salidas">
+      <div class="sec-head"><div class="sec-title">🧳 Check-outs · hoy</div><div class="sec-count" style="background:var(--red);" id="cnt-co">—</div></div>
+      <div class="search-wrap"><input class="search-input" type="search" placeholder="Buscar huésped o habitación…" oninput="filterC('co-cards',this.value)"></div>
+      <div class="cards" id="co-cards"></div>
+    </div>
+
+    <!-- IN-HOUSE -->
+    <div class="section" id="s-inhouse">
+      <div class="sec-head"><div class="sec-title">🏠 In-House · hoy</div><div class="sec-count" style="background:var(--teal);" id="cnt-ih">—</div></div>
+      <div class="search-wrap"><input class="search-input" type="search" placeholder="Buscar huésped o habitación…" oninput="filterC('ih-cards',this.value)"></div>
+      <div class="pills"><button class="pill on" onclick="filterType('ih-cards','all',this)">Todos</button><button class="pill" onclick="filterType('ih-cards','G',this)">🌿 Garden</button><button class="pill" onclick="filterType('ih-cards','R',this)">🌇 Rooftop</button><button class="pill" onclick="filterType('ih-cards','O',this)">🌊 Ocean</button><button class="pill" onclick="filterType('ih-cards','S',this)">🛏 Standard</button></div>
+      <div class="cards" id="ih-cards"></div>
+    </div>
+
+    <!-- OCUPACION -->
+    <div class="section" id="s-ocupacion">
+      <div class="sec-head"><div class="sec-title">📊 Ocupación</div></div>
+      <div class="occ-wrap" id="occ-wrap"></div>
+    </div>
+
+    <!-- RESERVAS -->
+    <div class="section" id="s-reservas">
+      <div class="sec-head"><div class="sec-title">🎫 Reservas · hoy y mañana</div><div class="sec-count" id="cnt-res">—</div></div>
+      <div class="search-wrap"><input class="search-input" type="search" placeholder="Buscar nombre o tipo…" oninput="filterC('res-all',this.value)"></div>
+
+      <div class="divider"><div class="divider-line"></div><div class="divider-lbl">Day Pass</div><div class="divider-line"></div></div>
+      <div class="resumen-title"><span>🏊 Day Pass</span><span class="sec-count" style="background:#0F4070;" id="cnt-daypass">—</span></div>
+      <div class="cards" id="res-daypass"></div>
+
+      <div class="divider"><div class="divider-line"></div><div class="divider-lbl">Open Table</div><div class="divider-line"></div></div>
+      <div class="resumen-title"><span>📖 Open Table</span><span class="sec-count" style="background:#7A300A;" id="cnt-opentable">—</span></div>
+      <div class="cards" id="res-opentable"></div>
+
+      <div class="divider"><div class="divider-line"></div><div class="divider-lbl">Restaurante</div><div class="divider-line"></div></div>
+      <div class="resumen-title"><span>🍽️ Restaurante</span><span class="sec-count" style="background:#1A5C2A;" id="cnt-rest">—</span></div>
+      <div class="cards" id="res-restaurante"></div>
+
+      <div class="divider"><div class="divider-line"></div><div class="divider-lbl">Site Inspection</div><div class="divider-line"></div></div>
+      <div class="resumen-title"><span>🏨 Site Inspection</span><span class="sec-count" style="background:#3A1880;" id="cnt-spa">—</span></div>
+      <div class="cards" id="res-spa"></div>
+
+      <!-- hidden container for search -->
+      <div id="res-all" style="display:none;"></div>
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="go('resumen',this)"><span class="nav-icon">📋</span>Resumen</button>
+    <button class="nav-item" onclick="go('llegadas',this)"><span class="nav-icon">🌅</span>Llegadas</button>
+    <button class="nav-item" onclick="go('salidas',this)"><span class="nav-icon">🧳</span>Salidas</button>
+    <button class="nav-item" onclick="go('inhouse',this)"><span class="nav-icon">🏠</span>In-House</button>
+    <button class="nav-item" onclick="go('ocupacion',this)"><span class="nav-icon">📊</span>Ocup.</button>
+    <button class="nav-item" onclick="go('reservas',this)"><span class="nav-icon">🎫</span>Reservas</button>
+  </nav>
+</div>
+
+<script>
+/* ════════════════════════════════
+   GOOGLE SHEETS CONFIG
+════════════════════════════════ */
+const SHEET_ID = '1i9j_JoVPZn5WDXXO50Em-RDLjAeFOSy7BN3HN1d_Y1Y';
+const SHEETS = {
+  inhouse:  '1655766616',
+  arrivals: '157627560',
+  occ:      '4003628',
+  reservas: '670213106',
+};
+
+function sheetURL(gid) {
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+}
+
+/* ════════════════════════════════
+   FETCH & PARSE CSV
+════════════════════════════════ */
+function setStep(msg) {
+  document.getElementById('loading-step').textContent = msg;
+}
+
+async function fetchSheet(gid) {
+  const res = await fetch(sheetURL(gid));
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const text = await res.text();
+  return parseCSV(text);
+}
+
+function parseCSV(text) {
+  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+  return lines.map(line => {
+    const cells = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c==='"') { inQ=!inQ; }
+      else if (c===',' && !inQ) { cells.push(cur.trim()); cur=''; }
+      else cur += c;
+    }
+    cells.push(cur.trim());
+    return cells;
+  }).filter(r => r.some(c => c !== ''));
+}
+
+// Find header row by matching known column names — search all rows
+function findHeader(rows, signatures) {
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i].map(c => String(c||'').toLowerCase());
+    const hits = signatures.filter(s => row.some(c => c.includes(s)));
+    if (hits.length >= 2) return i;
+  }
+  return -1;
+}
+
+/* ════════════════════════════════
+   DATE HELPERS
+════════════════════════════════ */
+function pad(n){return String(n).padStart(2,'0');}
+
+function fmtDate(v) {
+  if (!v||v==='') return '—';
+  const s = String(v).trim();
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return m[3]+'/'+m[2];
+  const m2 = s.match(/^(\d{1,2})\/(\d{1,2})/);
+  if (m2) return pad(m2[1])+'/'+pad(m2[2]);
+  return s.slice(0,5);
+}
+
+function toDate(v) {
+  if (!v) return null;
+  const s = String(v).trim();
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return new Date(+m[1],+m[2]-1,+m[3]);
+  const m2 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m2) return new Date(+m2[3],+m2[2]-1,+m2[1]);
+  return null;
+}
+
+function todayStr() { const d=new Date(); return pad(d.getDate())+'/'+pad(d.getMonth()+1); }
+function tomorrowStr() { const d=new Date(); d.setDate(d.getDate()+1); return pad(d.getDate())+'/'+pad(d.getMonth()+1); }
+
+function nightsBetween(ci,co){
+  const a=toDate(ci),b=toDate(co);
+  if(!a||!b)return '?';
+  const n=Math.round((b-a)/864e5);
+  return n>0?n:'?';
+}
+
+function extractName(v) {
+  if (!v) return '—';
+  const s = String(v).trim();
+  if (s.startsWith('http')) {
+    const m = s.match(/display=([^&]+)/);
+    if (m) return decodeURIComponent(m[1]).replace(/\+/g,' ');
+  }
+  return s;
+}
+
+// Column finder
+function ci(headers,...needles){
+  for(const n of needles){
+    const i=headers.findIndex(h=>h.toLowerCase().includes(n.toLowerCase()));
+    if(i!==-1)return i;
+  }
+  return -1;
+}
+
+/* ════════════════════════════════
+   DATA BUILDERS
+════════════════════════════════ */
+function buildInhouse(rows) {
+  // Row 0 = first row (A1) — this is the motivational quote
+  const quoteRow = rows[0] || [];
+  const quote = quoteRow.filter(c => c && String(c).trim()).map(c => String(c).trim()).join(' ').trim();
+
+  const hi = findHeader(rows, ['room number','guest first name','check-in date']);
+  if (hi===-1) throw new Error('In-House: no se reconocieron los encabezados');
+  const h = rows[hi].map(x=>String(x||'').trim());
+  const data = rows.slice(hi+1).filter(r=>r.some(c=>c!==''));
+
+  const iRoom  = ci(h,'reservation room number','room number');
+  const iFirst = ci(h,'guest first name','first name');
+  const iLast  = ci(h,'guest surname','last name','surname');
+  const iCI    = ci(h,'check-in date');
+  const iCO    = ci(h,'check-out date');
+  const iDur   = ci(h,'duration of stay');
+  const iCtry  = ci(h,'guest residence country','country');
+  const iNotes = ci(h,'active reservation notes','notes','comentarios');
+  // Column K = ETD — detect by name first, fall back to index 10
+  const iETD_byName = ci(h,'estimated time of departure','etd','hora estimada de salida','departure');
+  const iETD = iETD_byName !== -1 ? iETD_byName : 10;
+  const today  = todayStr();
+  const tmrw   = tomorrowStr();
+
+  const result = data
+    .filter(r => r[iRoom] && String(r[iRoom]).trim() && String(r[iRoom]).trim()!=='-')
+    .map(r => {
+      const room = String(r[iRoom]||'').trim().toUpperCase();
+      const name = (String(r[iFirst]||'')+' '+String(r[iLast]||'')).trim()||'—';
+      const ci_  = fmtDate(r[iCI]);
+      const co   = fmtDate(r[iCO]);
+      const n    = iDur>=0&&r[iDur] ? String(r[iDur]).trim() : nightsBetween(r[iCI],r[iCO]);
+      const country = iCtry>=0 ? String(r[iCtry]||'').trim() : '';
+      const notes = iNotes>=0 ? String(r[iNotes]||'').trim() : '';
+      const rawETD = r[iETD] ? String(r[iETD]).trim() : '';
+      let etd = '';
+      if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(rawETD)) {
+        // HH:MM or HH:MM:SS → take only HH:MM
+        etd = rawETD.slice(0,5);
+      } else if (/^0\.\d+$/.test(rawETD) || (/^\d+\.\d+$/.test(rawETD) && parseFloat(rawETD) < 1)) {
+        const totalMins = Math.round(parseFloat(rawETD) * 24 * 60);
+        etd = pad(Math.floor(totalMins/60)) + ':' + pad(totalMins%60);
+      } else if (/\d{1,2}:\d{2}(:\d{2})?\s*(AM|PM)/i.test(rawETD)) {
+        const m = rawETD.match(/(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)/i);
+        if (m) {
+          let hh = parseInt(m[1]);
+          const min = m[2];
+          const ampm = m[3].toUpperCase();
+          if (ampm === 'PM' && hh < 12) hh += 12;
+          if (ampm === 'AM' && hh === 12) hh = 0;
+          etd = pad(hh) + ':' + min;
+        }
+      }
+      const hesMatch = notes.match(/HES[\s:]+(\d{1,2}[:.]\d{2})/i);
+      const hes = etd || (hesMatch ? hesMatch[1] : '');
+      return { room, name, ci:ci_, co, nights:n, country:country||'—', notes, hes, checkout:co===today, arriving:ci_===today };
+    })
+    .filter(g=>/^[A-Z][0-9]+$/.test(g.room) && !/RESTAURANTE|PAYMASTER/i.test(g.name));
+
+  result.quote = quote;
+  return result;
+}
+
+function buildArrivals(rows) {
+  const hi = findHeader(rows, ['room check-in date','room primary guest full name','room identifier','room number']);
+  if (hi===-1) throw new Error('Arrivals: no se reconocieron los encabezados');
+  const h = rows[hi].map(x=>String(x||'').trim());
+  const data = rows.slice(hi+1).filter(r=>r.some(c=>c!==''));
+
+  const iCI    = ci(h,'room check-in date','check-in date');
+  const iCO    = ci(h,'room check-out date','check-out date');
+  const iRoom  = ci(h,'room number');
+  const iIdent = ci(h,'room identifier');
+  const iName  = ci(h,'room primary guest full name','primary guest full name','guest full name');
+  const iType  = ci(h,'room type');
+  const iStat  = ci(h,'reservation status');
+  const iNotes = ci(h,'active reservation notes','notes');
+  const iLen   = ci(h,'room length of stay','length of stay');
+  const iETA   = ci(h,'estimated arrival time','eta');
+
+  return data.map(r => {
+    let room = iRoom>=0 ? String(r[iRoom]||'').trim() : '';
+    if (!room||room==='-') {
+      const id = String(r[iIdent]||'').trim();
+      room = id;
+    }
+    room = room.toUpperCase();
+    const name   = extractName(r[iName]);
+    const ci_    = fmtDate(r[iCI]);
+    const co     = fmtDate(r[iCO]);
+    const n      = iLen>=0&&r[iLen] ? String(r[iLen]).trim() : nightsBetween(r[iCI],r[iCO]);
+    const type   = iType>=0 ? String(r[iType]||'').trim() : '';
+    const status = iStat>=0 ? String(r[iStat]||'').trim() : '';
+    const notes  = iNotes>=0 ? String(r[iNotes]||'').replace(/[^\x20-\x7EáéíóúñÁÉÍÓÚÑüÜ¡¿\n.,;:!?()\-\/]/g,'').trim() : '';
+    const eta    = iETA>=0 ? String(r[iETA]||'').trim().replace('-','') : '';
+    return { room, name, ci:ci_, co, nights:n, type, status, notes, eta };
+  }).filter(a=>a.name&&a.name!=='—');
+}
+
+function buildCheckouts(rows) {
+  const hi = findHeader(rows, ['check-out date','room numbers','primary guest full name']);
+  if (hi===-1) throw new Error('Check-out: no se reconocieron los encabezados');
+  const h = rows[hi].map(x=>String(x||'').trim());
+  const data = rows.slice(hi+1).filter(r=>r.some(c=>c!==''));
+
+  const iCO    = ci(h,'check-out date');
+  const iCI    = ci(h,'check-in date');
+  const iRoom  = ci(h,'room numbers','room number');
+  const iType  = ci(h,'room types','room type');
+  const iName  = ci(h,'primary guest full name','guest full name','guest name');
+  const iResNum= ci(h,'reservation number');
+  const iGuests= ci(h,'guest count');
+  const iNotes = ci(h,'active reservation notes','notes');
+
+  // Handle merged cells: carry forward the last non-empty checkout date
+  let lastCO = '';
+  return data.map(r => {
+    // Carry forward checkout date when cell is blank (merged in Sheets)
+    const rawCO = String(r[iCO]||'').trim();
+    if (rawCO && rawCO !== '-') lastCO = rawCO;
+    const co = fmtDate(lastCO);
+
+    const room   = String(r[iRoom]||'').trim().toUpperCase();
+    // Name: try direct column first, then extract from reservation number URL
+    let name = iName>=0 ? String(r[iName]||'').trim() : '';
+    if (!name || name==='-' || name==='') {
+      // Try extracting from reservation number URL (Cloudbeds embed names there)
+      const resRaw = iResNum>=0 ? String(r[iResNum]||'') : '';
+      name = extractName(resRaw);
+    }
+    if (!name || name==='—') name = extractName(String(r[iName]||''));
+
+    const ci_    = fmtDate(r[iCI]);
+    const type   = iType>=0 ? String(r[iType]||'').trim() : '';
+    const guests = iGuests>=0 ? String(r[iGuests]||'').trim() : '';
+    const notes  = iNotes>=0 ? String(r[iNotes]||'').trim().replace(/[^\x20-\x7EáéíóúñÁÉÍÓÚÑüÜ¡¿\n.,;:!?()\-\/]/g,'') : '';
+    return { room, name, ci:ci_, co, type, guests, notes };
+  }).filter(c=>c.room&&/^[A-Z][0-9]+$/.test(c.room)&&c.name&&c.name!=='—');
+}
+
+function buildOcc(rows) {
+  const hi = findHeader(rows, ['stay date','rooms sold','occupancy']);
+  if (hi===-1) throw new Error('Occupancy: no se reconocieron los encabezados');
+  const h = rows[hi].map(x=>String(x||'').trim());
+  const data = rows.slice(hi+1).filter(r=>r.some(c=>c!==''));
+
+  const iDate = ci(h,'stay date','date');
+  const iSold = ci(h,'rooms sold');
+  const iCap  = ci(h,'capacity');
+  const iOcc  = ci(h,'occupancy - aggregated','occupancy %','occupancy');
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  return data.map(r => {
+    const dObj = toDate(r[iDate]); if(!dObj) return null;
+    dObj.setHours(0,0,0,0);
+    const diff = dObj - today;
+    let o = parseFloat(String(r[iOcc]||0).replace('%',''));
+    if (o>0&&o<=1) o=Math.round(o*100);
+    return { d:fmtDate(r[iDate]), s:parseInt(r[iSold])||0, cap:parseInt(r[iCap])||25, o:Math.round(o), today:diff===0, future:diff>0, past:diff<0 };
+  }).filter(Boolean);
+}
+
+function buildReservas(rows) {
+  const hi = findHeader(rows, ['fecha','tipo','nombre']);
+  if (hi===-1) return [];
+  const h = rows[hi].map(x=>String(x||'').trim().toLowerCase());
+  const data = rows.slice(hi+1).filter(r=>r.some(c=>c!==''));
+
+  const iFecha   = ci(h,'fecha','date');
+  const iTipo    = ci(h,'tipo','type');
+  const iNombre  = ci(h,'nombre','name','cliente');
+  const iPersonas= ci(h,'personas','pax','#','guests','people');
+  const iHora    = ci(h,'hora','time','hour');
+  const iOrigen  = ci(h,'origen','source','fuente');
+  const iEstado  = ci(h,'estado','status');
+  const iNotas   = ci(h,'notas','notes','comentarios');
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const tmrw  = new Date(today); tmrw.setDate(tmrw.getDate()+1);
+
+  function parseReservaDate(v) {
+    if (!v) return null;
+    const s = String(v).trim();
+    // M/D/YYYY or MM/DD/YYYY
+    const m1 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (m1) return new Date(+m1[3], +m1[1]-1, +m1[2]);
+    // YYYY-MM-DD
+    const m2 = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m2) return new Date(+m2[1], +m2[2]-1, +m2[3]);
+    // DD/MM/YYYY
+    const m3 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+    if (m3 && +m3[3] > 31) return new Date(+m3[3], +m3[2]-1, +m3[1]);
+    return null;
+  }
+
+  function fmtReservaDate(v) {
+    const d = parseReservaDate(v);
+    if (!d) return '—';
+    return pad(d.getDate())+'/'+pad(d.getMonth()+1);
+  }
+
+  return data.map(r => {
+    const fechaObj = parseReservaDate(r[iFecha]);
+    if (!fechaObj) return null;
+    fechaObj.setHours(0,0,0,0);
+    const diff = fechaObj - today;
+    if (diff < 0 || diff > 864e5) return null; // only today and tomorrow
+    const isToday = diff === 0;
+
+    // Normalize tipo — treat Spa as Site Inspection
+    let tipo = iTipo>=0 ? String(r[iTipo]||'').trim() : '';
+    if (/^spa$/i.test(tipo)) tipo = 'Site Inspection';
+
+    return {
+      fecha:    fmtReservaDate(r[iFecha]),
+      isToday,
+      tipo,
+      nombre:   iNombre>=0  ? String(r[iNombre]||'').trim()  : '—',
+      personas: iPersonas>=0 ? String(r[iPersonas]||'').trim(): '',
+      hora:     iHora>=0    ? String(r[iHora]||'').trim()    : '',
+      origen:   iOrigen>=0  ? String(r[iOrigen]||'').trim()  : '',
+      estado:   iEstado>=0  ? String(r[iEstado]||'').trim()  : '',
+      notas:    iNotas>=0   ? String(r[iNotas]||'').trim()   : '',
+    };
+  }).filter(Boolean);
+}
+
+/* ════════════════════════════════
+   MAIN LOAD
+════════════════════════════════ */
+async function loadDashboard() {
+  try {
+    setStep('Cargando In-House Guests…');
+    const ihRows = await fetchSheet(SHEETS.inhouse);
+
+    setStep('Cargando Arrivals Overview…');
+    const arrRows = await fetchSheet(SHEETS.arrivals);
+
+    setStep('Cargando Occupancy & Forecast…');
+    const occRows = await fetchSheet(SHEETS.occ);
+
+    setStep('Cargando Reservas…');
+    const resRows = await fetchSheet(SHEETS.reservas);
+
+    setStep('Generando briefing…');
+
+    const INHOUSE   = buildInhouse(ihRows);
+    const ARRIVALS  = buildArrivals(arrRows);
+    const CHECKOUTS = INHOUSE.filter(g => g.checkout);
+    const OCC       = buildOcc(occRows);
+    const RESERVAS  = buildReservas(resRows);
+
+    renderDashboard(INHOUSE, ARRIVALS, CHECKOUTS, OCC, RESERVAS);
+
+  } catch(e) {
+    console.error(e);
+    document.getElementById('loading-screen').style.display='none';
+    document.getElementById('error-screen').classList.add('show');
+    document.getElementById('err-detail').textContent = e.message || 'Error desconocido. Verifica tu conexión e intenta de nuevo.';
+  }
+}
+
+/* ════════════════════════════════
+   RENDER
+════════════════════════════════ */
+function renderDashboard(INHOUSE, ARRIVALS, CHECKOUTS, OCC, RESERVAS) {
+  const sc=(id,n,w1,w2)=>{const el=document.getElementById(id);if(el)el.textContent=n+' '+(n===1?w1:w2);};
+
+  // Quote of the day
+  const quote = INHOUSE.quote || '';
+  const quoteBar = document.getElementById('quote-bar');
+  const quoteTxt = document.getElementById('quote-text');
+  if (quote) {
+    quoteTxt.textContent = '\u201c' + quote + '\u201d';
+    quoteBar.classList.add('show');
+  }
+
+  // KPIs
+  const todayOcc = OCC.find(d=>d.today);
+  document.getElementById('kpi-occ').textContent     = todayOcc ? todayOcc.o+'%' : '—';
+  document.getElementById('kpi-occ-sub').textContent = todayOcc ? todayOcc.s+'/'+todayOcc.cap+' hab.' : INHOUSE.length+' hab.';
+  document.getElementById('kpi-cout').textContent    = CHECKOUTS.length;
+  document.getElementById('kpi-cin').textContent     = ARRIVALS.length;
+
+  sc('cnt-rarr', ARRIVALS.length,  'reserva','reservas');
+  sc('cnt-arr',  ARRIVALS.length,  'reserva','reservas');
+  sc('cnt-rco',  CHECKOUTS.length, 'salida','salidas');
+  sc('cnt-co',   CHECKOUTS.length, 'salida','salidas');
+  sc('cnt-ih',   INHOUSE.length,   'huésped','huéspedes');
+
+  const staying = INHOUSE.filter(g=>!g.checkout&&!g.arriving).sort(roomSort);
+  sc('stay-cnt', staying.length, 'huésped','huéspedes');
+
+  const sA=[...ARRIVALS].sort(roomSort);
+  const sC=[...CHECKOUTS].sort(roomSort);
+  const sI=[...INHOUSE].sort(roomSort);
+
+  set('arr-cards',   sA.map(a=>cardArrival(a,'arr')));
+  set('r-arriving',  sA.map(a=>cardArrival(a,'rarr')));
+  set('co-cards',    sC.map(c=>cardCheckout(c,'co')));
+  set('r-checkouts', sC.map(c=>cardCheckout(c,'rco')));
+  set('ih-cards',    sI.map(g=>cardInhouse(g,'ih')));
+  set('r-staying',   staying.map(g=>cardInhouse(g,'rst')));
+
+  // Reservas — split by type
+  const byType = (t) => RESERVAS.filter(r=>r.tipo.toLowerCase()===t.toLowerCase());
+  const daypass    = byType('Day Pass');
+  const opentable  = byType('Open Table');
+  const restaurante= byType('Restaurante');
+  const spa        = byType('Site Inspection');
+
+  sc('cnt-res',      RESERVAS.length,      'reserva','reservas');
+  sc('cnt-daypass',  daypass.length,        'reserva','reservas');
+  sc('cnt-opentable',opentable.length,      'reserva','reservas');
+  sc('cnt-rest',     restaurante.length,    'reserva','reservas');
+  sc('cnt-spa',      spa.length,            'reserva','reservas');
+
+  set('res-daypass',    daypass.map(r=>cardReserva(r,'dp')));
+  set('res-opentable',  opentable.map(r=>cardReserva(r,'ot')));
+  set('res-restaurante',restaurante.map(r=>cardReserva(r,'rs')));
+  set('res-spa',        spa.map(r=>cardReserva(r,'sp')));
+
+  // Occupancy
+  document.getElementById('occ-wrap').innerHTML = OCC.map(d=>{
+    const cls=d.today?'bar-today':d.future?'bar-future':'bar-past';
+    const lbl=d.today?d.d+' ← HOY':d.future?d.d+' ↑':d.d;
+    const color=d.today?'var(--terra)':d.o===100?'var(--teal)':'var(--charcoal2)';
+    return `<div class="occ-card"><div class="occ-inner"><div class="occ-lbl ${d.today?'today-lbl':''}">${lbl}</div><div class="bar-track"><div class="bar-fill ${cls}" style="width:${d.o}%"></div></div><div class="occ-num" style="color:${color}">${d.o}%</div></div><div class="occ-sub"><strong>${d.s}</strong>/${d.cap} habitaciones</div></div>`;
+  }).join('');
+
+  // Date
+  const now=new Date();
+  const DIAS=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  document.getElementById('topDate').textContent=DIAS[now.getDay()]+', '+now.getDate()+' de '+MESES[now.getMonth()]+' '+now.getFullYear();
+  document.getElementById('banner-txt').textContent='Reporte matutino · '+now.getDate()+' de '+MESES[now.getMonth()];
+  document.getElementById('last-updated').textContent='Última actualización: '+now.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+
+  document.body.classList.add('dash');
+  window.scrollTo(0,0);
+}
+
+function set(id,arr){document.getElementById(id).innerHTML=arr.join('')||'<div class="empty-state">Sin registros</div>';}
+
+/* ════════════════════════════════
+   CARD BUILDERS
+════════════════════════════════ */
+function rp(room){const p=room?room[0].toUpperCase():'X';return 'room-pill r'+(['G','R','O','S'].includes(p)?p:'X');}
+function roomSort(a,b){const O={G:0,O:1,R:2,S:3};const aL=a.room?a.room[0].toUpperCase():'Z',bL=b.room?b.room[0].toUpperCase():'Z';if(aL!==bL)return(O[aL]??9)-(O[bL]??9);return parseInt(a.room.slice(1)||0)-parseInt(b.room.slice(1)||0);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function cardArrival(a,pfx){
+  const id=pfx+'_'+a.room;
+  const cfm=/confirm/i.test(a.status);
+  const etaClean = a.eta && a.eta!=='-' ? a.eta : '';
+  return `<div class="card" data-room="${(a.room||'X')[0].toUpperCase()}" data-search="${(a.room||'').toLowerCase()} ${(a.name||'').toLowerCase()}">
+    <div class="card-top"><div class="${rp(a.room)}">${esc(a.room)}</div><div class="card-info"><div class="guest-name">${esc(a.name)}</div><div class="guest-meta"><span class="tag ${cfm?'tag-confirmed':'tag-arriving'}">${cfm?'Confirmada':'Llega hoy'}</span><span class="nights-tag">${a.nights}n</span>${etaClean?`<span class="tag-eta">🕐 ETA ${esc(etaClean)}</span>`:''}</div></div></div>
+    <div class="card-dates"><div class="date-cell"><div class="date-label">✅ Check-in</div><div class="date-val">${a.ci}</div></div><div class="date-cell"><div class="date-label">🚪 Check-out</div><div class="date-val">${a.co}</div></div></div>
+    ${a.type?`<div class="card-type">Tipo: <strong>${esc(a.type)}</strong></div>`:''}
+    ${a.notes?`<div class="card-type" style="color:var(--terra);font-style:italic;">${esc(a.notes)}</div>`:''}
+    ${commentHTML(id,'')}
+  </div>`;
+}
+
+function cardCheckout(c,pfx){
+  const id=pfx+'_'+c.room;
+  return `<div class="card" data-room="${(c.room||'X')[0].toUpperCase()}" data-search="${(c.room||'').toLowerCase()} ${(c.name||'').toLowerCase()}">
+    <div class="card-top"><div class="${rp(c.room)}">${esc(c.room)}</div><div class="card-info"><div class="guest-name">${esc(c.name)}</div><div class="guest-meta"><span class="tag tag-checkout">Sale hoy</span>${c.nights?`<span class="nights-tag">${c.nights}n</span>`:''}${c.hes?`<span class="tag-hes">🕐 ETD ${esc(c.hes)}</span>`:''}${c.country&&c.country!=='—'?`<span style="font-size:0.63rem;color:var(--muted);">${esc(c.country)}</span>`:''}</div></div></div>
+    <div class="card-dates"><div class="date-cell"><div class="date-label">📅 Check-in</div><div class="date-val">${c.ci}</div></div><div class="date-cell"><div class="date-label">🚪 Sale el</div><div class="date-val" style="color:var(--red);font-weight:700;">${c.co}</div></div></div>
+    ${c.notes&&!c.hes?`<div class="card-type" style="color:var(--terra);font-style:italic;">${esc(c.notes)}</div>`:''}
+    ${commentHTML(id,'')}
+  </div>`;
+}
+
+function cardInhouse(g,pfx){
+  const id=pfx+'_'+g.room;
+  return `<div class="card" data-room="${(g.room||'X')[0].toUpperCase()}" data-search="${(g.room||'').toLowerCase()} ${(g.name||'').toLowerCase()}">
+    <div class="card-top"><div class="${rp(g.room)}">${esc(g.room)}</div><div class="card-info"><div class="guest-name">${esc(g.name)}</div><div class="guest-meta">${g.checkout?'<span class="tag tag-checkout">Sale hoy</span>':'<span class="tag tag-staying">Se queda</span>'}${g.arriving?'<span class="tag tag-arriving">Llega hoy</span>':''}${g.nights?`<span class="nights-tag">${g.nights}n</span>`:''}${g.hes?`<span class="tag-hes">🕐 ETD ${esc(g.hes)}</span>`:''}${g.country&&g.country!=='—'?`<span style="font-size:0.63rem;color:var(--muted);">${esc(g.country)}</span>`:''}</div></div></div>
+    <div class="card-dates"><div class="date-cell"><div class="date-label">📅 Check-in</div><div class="date-val">${g.ci}</div></div><div class="date-cell"><div class="date-label">🚪 Check-out</div><div class="date-val" style="${g.checkout?'color:var(--red);font-weight:700;':''}">${g.co}</div></div></div>
+    ${g.notes?`<div class="card-type" style="color:var(--terra);font-style:italic;">${esc(g.notes)}</div>`:''}
+    ${commentHTML(id,'')}
+  </div>`;
+}
+
+function cardReserva(r, pfx) {
+  const id = pfx+'_'+r.nombre.replace(/\s/g,'_').slice(0,20)+'_'+r.hora;
+  const typeTag = {
+    'restaurante': 'tag-res-rest', 'day pass': 'tag-res-day',
+    'site inspection': 'tag-res-spa', 'open table': 'tag-res-ot'
+  }[r.tipo.toLowerCase()] || 'tag-inhouse';
+  const statusTag = {
+    'confirmada': 'tag-confirmada', 'pendiente': 'tag-pendiente', 'cancelada': 'tag-cancelada'
+  }[r.estado.toLowerCase()] || '';
+
+  return `<div class="card" data-search="${(r.nombre||'').toLowerCase()} ${(r.tipo||'').toLowerCase()}">
+    <div class="card-top">
+      <div style="background:var(--sand2);border-radius:6px;padding:6px 10px;font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;flex-shrink:0;color:var(--charcoal);min-width:48px;text-align:center;">${r.hora||'—'}</div>
+      <div class="card-info">
+        <div class="guest-name">${esc(r.nombre)}</div>
+        <div class="guest-meta">
+          ${r.estado ? `<span class="tag ${statusTag}">${esc(r.estado)}</span>` : ''}
+          ${r.personas ? `<span class="nights-tag">👥 ${esc(r.personas)}</span>` : ''}
+          ${!r.isToday ? `<span class="tag-tmrw">Mañana ${r.fecha}</span>` : ''}
+        </div>
+      </div>
+    </div>
+    ${r.origen ? `<div class="card-type">Origen: <strong>${esc(r.origen)}</strong></div>` : ''}
+    ${r.notas ? `<div class="card-type" style="color:var(--terra);font-style:italic;">${esc(r.notas)}</div>` : ''}
+    ${commentHTML(id,'')}
+  </div>`;
+}
+let CM={};
+try{CM=JSON.parse(localStorage.getItem('cy5')||'{}');}catch(e){}
+const getC=id=>CM[id]||'';
+const setC=(id,v)=>{CM[id]=v;try{localStorage.setItem('cy5',JSON.stringify(CM));}catch(e){}};
+
+function commentHTML(id,fallback){
+  const v=getC(id)||fallback||'';const has=v.trim()!=='';
+  return `<div class="card-comment" id="cc_${id}"><div class="comment-row" id="crow_${id}"><div class="${has?'comment-text':'comment-empty'}">${has?esc(v):'Sin comentarios'}</div><button class="edit-btn" onclick="openE('${id}')">✏️</button></div><div class="comment-edit" id="ced_${id}"><textarea class="comment-ta" id="cta_${id}" rows="2" placeholder="Agregar nota…"></textarea><div class="comment-btns"><button class="btn-save" onclick="saveE('${id}')">Guardar</button><button class="btn-cancel" onclick="closeE('${id}')">Cancelar</button></div></div></div>`;
+}
+function openE(id){document.getElementById('cta_'+id).value=getC(id);document.getElementById('crow_'+id).style.display='none';document.getElementById('ced_'+id).classList.add('open');document.getElementById('cta_'+id).focus();}
+function closeE(id){document.getElementById('crow_'+id).style.display='';document.getElementById('ced_'+id).classList.remove('open');}
+function saveE(id){const v=document.getElementById('cta_'+id).value.trim();setC(id,v);const row=document.getElementById('crow_'+id);row.querySelector('div').className=v?'comment-text':'comment-empty';row.querySelector('div').textContent=v||'Sin comentarios';closeE(id);}
+
+/* ════════════════════════════════
+   NAV & FILTERS
+════════════════════════════════ */
+function go(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));document.getElementById('s-'+id).classList.add('active');if(btn)btn.classList.add('active');window.scrollTo(0,0);}
+function filterC(cid,val){
+  const q=val.toLowerCase().trim();
+  // For reservas: search across all type containers
+  if(cid==='res-all'){
+    ['res-daypass','res-opentable','res-restaurante','res-spa'].forEach(id=>{
+      document.getElementById(id).querySelectorAll('.card').forEach(c=>{c.style.display=(c.dataset.search||'').includes(q)?'':'none';});
+    });
+    return;
+  }
+  document.getElementById(cid).querySelectorAll('.card').forEach(c=>{c.style.display=(c.dataset.search||'').includes(q)?'':'none';});
+}
+function filterType(cid,prefix,btn){btn.closest('.pills').querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));btn.classList.add('on');document.getElementById(cid).querySelectorAll('.card').forEach(c=>{c.style.display=(prefix==='all'||c.dataset.room===prefix)?'':'none';});}
+
+/* ════════════════════════════════
+   INIT
+════════════════════════════════ */
+loadDashboard();
+</script>
+</body>
+</html>
