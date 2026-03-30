@@ -192,6 +192,37 @@ main{padding:0;padding-bottom:88px;}
 .occ-num{font-weight:700;font-size:0.82rem;text-align:right;}
 .occ-sub{padding:0 14px 8px;font-size:0.6rem;color:var(--muted);}
 .occ-sub strong{color:var(--charcoal2);}
+.occ-breakdown{
+  border-top:1px solid var(--border);
+  padding:8px 14px 10px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:4px 12px;
+}
+.occ-bd-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-size:0.65rem;
+  color:var(--muted);
+  gap:6px;
+}
+.occ-bd-type{font-weight:500;color:var(--charcoal2);}
+.occ-bd-nums{display:flex;gap:6px;flex-shrink:0;}
+.occ-arr{color:var(--green);font-weight:700;font-size:0.62rem;}
+.occ-dep{color:var(--red);font-weight:700;font-size:0.62rem;}
+.occ-total-row{
+  border-top:1px solid var(--border);
+  padding:7px 14px 9px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:0.72rem;
+}
+.occ-total-lbl{color:var(--muted);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;}
+.occ-totals{display:flex;gap:14px;}
+.occ-total-arr{color:var(--green);font-weight:700;}
+.occ-total-dep{color:var(--red);font-weight:700;}
 .empty-state{text-align:center;padding:2rem;color:var(--muted);font-size:0.8rem;}
 
 .last-updated{text-align:center;font-size:0.6rem;color:var(--muted);padding:8px;opacity:0.7;}
@@ -584,19 +615,99 @@ function buildOcc(rows) {
   const data = rows.slice(hi+1).filter(r=>r.some(c=>c!==''));
 
   const iDate = ci(h,'stay date','date');
+  const iType = ci(h,'room type');
   const iSold = ci(h,'rooms sold');
   const iCap  = ci(h,'capacity');
   const iOcc  = ci(h,'occupancy - aggregated','occupancy %','occupancy');
   const today = new Date(); today.setHours(0,0,0,0);
 
-  return data.map(r => {
-    const dObj = toDate(r[iDate]); if(!dObj) return null;
+  // Check if this is the by-room-type report
+  const hasByType = iType !== -1;
+
+  if (!hasByType) {
+    // Original flat format
+    return data.map(r => {
+      const dObj = toDate(r[iDate]); if(!dObj) return null;
+      dObj.setHours(0,0,0,0);
+      const diff = dObj - today;
+      let o = parseFloat(String(r[iOcc]||0).replace('%',''));
+      if (o>0&&o<=1) o=Math.round(o*100);
+      return { d:fmtDate(r[iDate]), s:parseInt(r[iSold])||0, cap:parseInt(r[iCap])||25, o:Math.round(o), today:diff===0, future:diff>0, past:diff<0, types:{} };
+    }).filter(Boolean);
+  }
+
+  // By-room-type format: group rows by date, carry forward date for merged cells
+  const byDate = {};
+  const dateOrder = [];
+  let lastDate = null;
+
+  data.forEach(r => {
+    const rawDate = String(r[iDate]||'').trim();
+    if (rawDate && rawDate !== '-' && rawDate !== 'NaN') lastDate = rawDate;
+    if (!lastDate) return;
+
+    const dObj = toDate(lastDate); if(!dObj) return;
     dObj.setHours(0,0,0,0);
-    const diff = dObj - today;
-    let o = parseFloat(String(r[iOcc]||0).replace('%',''));
-    if (o>0&&o<=1) o=Math.round(o*100);
-    return { d:fmtDate(r[iDate]), s:parseInt(r[iSold])||0, cap:parseInt(r[iCap])||25, o:Math.round(o), today:diff===0, future:diff>0, past:diff<0 };
-  }).filter(Boolean);
+
+    const dateKey = lastDate;
+    if (!byDate[dateKey]) {
+      byDate[dateKey] = { dObj, types:{}, totalSold:0, totalCap:0 };
+      dateOrder.push(dateKey);
+    }
+
+    const type = iType>=0 ? String(r[iType]||'').trim() : '';
+    const sold = parseInt(r[iSold])||0;
+    const cap  = parseInt(r[iCap])||0;
+
+    if (type && type !== '-') {
+      // Normalize type name to short key
+      const typeKey = type.toLowerCase().includes('garden') ? 'Garden' :
+                      type.toLowerCase().includes('ocean')  ? 'Ocean' :
+                      type.toLowerCase().includes('rooftop')? 'Rooftop' :
+                      type.toLowerCase().includes('standard')? 'Standard' : type;
+      byDate[dateKey].types[typeKey] = (byDate[dateKey].types[typeKey]||0) + sold;
+      byDate[dateKey].totalSold += sold;
+      byDate[dateKey].totalCap  += cap;
+    }
+  });
+
+  // Build final array with arrivals/departures calculated from consecutive days
+  const result = dateOrder.map(dateKey => {
+    const entry = byDate[dateKey];
+    const diff  = entry.dObj - today;
+    const totalSold = entry.totalSold;
+    const cap       = entry.totalCap || 25;
+    const o         = cap > 0 ? Math.round(totalSold / cap * 100) : 0;
+    return {
+      d: fmtDate(dateKey),
+      s: totalSold,
+      cap,
+      o,
+      types: entry.types,
+      today:  diff===0,
+      future: diff>0,
+      past:   diff<0,
+    };
+  });
+
+  // Calculate arrivals/departures: sold today - sold yesterday per type
+  result.forEach((day, i) => {
+    if (i === 0) { day.arrivals={}; day.departures={}; day.totalArr=0; day.totalDep=0; return; }
+    const prev = result[i-1];
+    const allTypes = new Set([...Object.keys(day.types), ...Object.keys(prev.types)]);
+    day.arrivals={};  day.departures={};
+    allTypes.forEach(t => {
+      const cur  = day.types[t]  || 0;
+      const prv  = prev.types[t] || 0;
+      const diff = cur - prv;
+      if (diff > 0) day.arrivals[t]   = diff;
+      if (diff < 0) day.departures[t] = Math.abs(diff);
+    });
+    day.totalArr = Object.values(day.arrivals).reduce((a,b)=>a+b,0);
+    day.totalDep = Object.values(day.departures).reduce((a,b)=>a+b,0);
+  });
+
+  return result;
 }
 
 function buildReservas(rows) {
@@ -760,11 +871,50 @@ function renderDashboard(INHOUSE, ARRIVALS, CHECKOUTS, OCC, RESERVAS) {
   set('res-spa',        spa.map(r=>cardReserva(r,'sp')));
 
   // Occupancy
+  const TYPE_ICON = {Garden:'🌿', Ocean:'🌊', Rooftop:'🌇', Standard:'🛏'};
   document.getElementById('occ-wrap').innerHTML = OCC.map(d=>{
-    const cls=d.today?'bar-today':d.future?'bar-future':'bar-past';
-    const lbl=d.today?d.d+' ← HOY':d.future?d.d+' ↑':d.d;
-    const color=d.today?'var(--terra)':d.o===100?'var(--teal)':'var(--charcoal2)';
-    return `<div class="occ-card"><div class="occ-inner"><div class="occ-lbl ${d.today?'today-lbl':''}">${lbl}</div><div class="bar-track"><div class="bar-fill ${cls}" style="width:${d.o}%"></div></div><div class="occ-num" style="color:${color}">${d.o}%</div></div><div class="occ-sub"><strong>${d.s}</strong>/${d.cap} habitaciones</div></div>`;
+    const cls   = d.today?'bar-today':d.future?'bar-future':'bar-past';
+    const lbl   = d.today?d.d+' ← HOY':d.future?d.d+' ↑':d.d;
+    const color = d.today?'var(--terra)':d.o===100?'var(--teal)':'var(--charcoal2)';
+
+    // Build breakdown section if we have arrivals/departures data
+    let breakdown = '';
+    const hasData = d.totalArr > 0 || d.totalDep > 0;
+    if (hasData) {
+      const allTypes = new Set([...Object.keys(d.arrivals||{}), ...Object.keys(d.departures||{})]);
+      const typeRows = [...allTypes].map(t => {
+        const icon = TYPE_ICON[t] || '🏠';
+        const arr = d.arrivals?.[t] || 0;
+        const dep = d.departures?.[t] || 0;
+        return `<div class="occ-bd-row">
+          <span class="occ-bd-type">${icon} ${t}</span>
+          <span class="occ-bd-nums">
+            ${dep>0?`<span class="occ-dep">↗ ${dep} sal</span>`:''}
+            ${arr>0?`<span class="occ-arr">↙ ${arr} lle</span>`:''}
+          </span>
+        </div>`;
+      }).join('');
+
+      breakdown = `
+        <div class="occ-breakdown">${typeRows}</div>
+        <div class="occ-total-row">
+          <span class="occ-total-lbl">Total del día</span>
+          <span class="occ-totals">
+            ${d.totalDep>0?`<span class="occ-total-dep">🧳 ${d.totalDep} salidas</span>`:''}
+            ${d.totalArr>0?`<span class="occ-total-arr">🌅 ${d.totalArr} llegadas</span>`:''}
+          </span>
+        </div>`;
+    }
+
+    return `<div class="occ-card">
+      <div class="occ-inner">
+        <div class="occ-lbl ${d.today?'today-lbl':''}">${lbl}</div>
+        <div class="bar-track"><div class="bar-fill ${cls}" style="width:${d.o}%"></div></div>
+        <div class="occ-num" style="color:${color}">${d.o}%</div>
+      </div>
+      <div class="occ-sub"><strong>${d.s}</strong>/${d.cap} habitaciones</div>
+      ${breakdown}
+    </div>`;
   }).join('');
 
   // Date
