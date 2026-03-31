@@ -56,7 +56,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--sand);color:var(--charcoa
 
 /* ── DASHBOARD ── */
 #dashboard-screen{display:none;}
-body.dash #loading-screen{display:none;}
+body.dash #loading-screen{display:none !important;}
+body.dash #pwd-screen{display:none !important;}
 body.dash #dashboard-screen{display:block;}
 
 .top-bar{background:var(--charcoal);padding:13px 16px 11px;display:flex;align-items:flex-end;justify-content:space-between;position:sticky;top:0;z-index:200;}
@@ -1102,7 +1103,14 @@ function saveE(id){const v=document.getElementById('cta_'+id).value.trim();setC(
 /* ════════════════════════════════
    NAV & FILTERS
 ════════════════════════════════ */
-function go(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));document.getElementById('s-'+id).classList.add('active');if(btn)btn.classList.add('active');window.scrollTo(0,0);}
+function go(id,btn){
+  document.getElementById('loading-screen').style.display='none';
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  window.scrollTo(0,0);
+}
 function filterC(cid,val){
   const q=val.toLowerCase().trim();
   // For reservas: search across all type containers
