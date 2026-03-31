@@ -22,9 +22,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--sand);color:var(--charcoa
 
 /* ── LOADING SCREEN ── */
 #loading-screen{
-  min-height:100dvh;display:flex;flex-direction:column;
+  display:none;
+  min-height:100dvh;flex-direction:column;
   align-items:center;justify-content:center;gap:24px;
   padding:32px;
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:var(--sand);
+  z-index:999;
 }
 .loading-logo{font-family:'Cormorant Garamond',serif;font-size:2.4rem;letter-spacing:0.14em;color:var(--charcoal);text-align:center;}
 .loading-logo em{color:var(--terra);font-style:normal;}
@@ -281,7 +285,7 @@ main{padding:0;padding-bottom:88px;}
 </div>
 
 <!-- LOADING -->
-<div id="loading-screen" style="display:none;">
+<div id="loading-screen">
   <div class="loading-logo">CASA <em>YUMA</em></div>
   <div class="loading-spinner"></div>
   <div class="loading-step" id="loading-step">Cargando datos…</div>
