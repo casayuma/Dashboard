@@ -288,7 +288,7 @@ main{padding:0;padding-bottom:88px;}
 </div>
 
 <!-- ERROR -->
-<div id="error-screen">
+<div id="error-screen" style="display:none;">
   <div class="err-icon">⚠️</div>
   <div class="err-title">No se pudo cargar</div>
   <div class="err-msg" id="err-detail">Verifica tu conexión a internet e intenta de nuevo.</div>
@@ -429,6 +429,7 @@ function checkPwd() {
 if (sessionStorage.getItem('cy_auth') === '1') {
   document.getElementById('pwd-screen').style.display = 'none';
   document.getElementById('loading-screen').style.display = 'flex';
+  document.getElementById('error-screen').style.display = 'none';
 }
 /* ════════════════════════════════
    GOOGLE SHEETS CONFIG
@@ -888,7 +889,7 @@ async function loadDashboard() {
   } catch(e) {
     console.error(e);
     document.getElementById('loading-screen').style.display='none';
-    document.getElementById('error-screen').classList.add('show');
+    document.getElementById('error-screen').style.display='flex';
     document.getElementById('err-detail').textContent = e.message || 'Error desconocido. Verifica tu conexión e intenta de nuevo.';
   }
 }
