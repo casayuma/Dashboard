@@ -411,6 +411,9 @@ main{padding:0;padding-bottom:88px;}
 ════════════════════════════════ */
 const PWD = 'Gracias26';
 
+// Always start clean
+document.body.classList.remove('dash');
+
 function checkPwd() {
   const val = document.getElementById('pwd-input').value;
   if (val === PWD) {
