@@ -664,11 +664,17 @@ function buildOcc(rows) {
                       type.toLowerCase().includes('ocean')  ? 'Ocean' :
                       type.toLowerCase().includes('rooftop')? 'Rooftop' :
                       type.toLowerCase().includes('standard')? 'Standard' : type;
-      byDate[dateKey].types[typeKey] = (byDate[dateKey].types[typeKey]||0) + sold;
-      byDate[dateKey].totalSold += sold;
-      // Store cap per type (fixed, doesn't change by day)
-      if (!byDate[dateKey].capPerType) byDate[dateKey].capPerType = {};
-      if (cap > 0) byDate[dateKey].capPerType[typeKey] = cap;
+      // Store sold per type (overwrite, not accumulate — one row per type per date)
+      byDate[dateKey].types[typeKey] = sold;
+      byDate[dateKey].totalSold = Object.values(byDate[dateKey].types).reduce((a,b)=>a+b,0);
+      // Store max cap per type globally (capacity is fixed per type)
+      if (cap > 0) {
+        if (!byDate[dateKey].capPerType) byDate[dateKey].capPerType = {};
+        // Use max to avoid double-counting if rows are repeated
+        byDate[dateKey].capPerType[typeKey] = Math.max(
+          byDate[dateKey].capPerType[typeKey]||0, cap
+        );
+      }
     }
   });
 
