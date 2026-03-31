@@ -1013,6 +1013,7 @@ function renderDashboard(INHOUSE, ARRIVALS, CHECKOUTS, OCC, RESERVAS) {
   document.getElementById('last-updated').textContent='Última actualización: '+now.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
 
   document.body.classList.add('dash');
+  document.getElementById('loading-screen').style.display = 'none';
   window.scrollTo(0,0);
 }
 
