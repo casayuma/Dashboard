@@ -226,12 +226,61 @@ main{padding:0;padding-bottom:88px;}
 .empty-state{text-align:center;padding:2rem;color:var(--muted);font-size:0.8rem;}
 
 .last-updated{text-align:center;font-size:0.6rem;color:var(--muted);padding:8px;opacity:0.7;}
+
+/* ── PASSWORD SCREEN ── */
+#pwd-screen{
+  min-height:100dvh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:32px;gap:28px;
+  background:var(--charcoal);
+}
+.pwd-logo{font-family:'Cormorant Garamond',serif;font-size:2.4rem;letter-spacing:0.14em;color:var(--sand);text-align:center;}
+.pwd-logo em{color:var(--terra2);font-style:normal;}
+.pwd-subtitle{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;text-align:center;}
+.pwd-box{width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px;}
+.pwd-input{
+  width:100%;padding:14px 16px;
+  border-radius:var(--radius-sm);
+  border:1.5px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.07);
+  color:var(--sand);font-size:1.1rem;
+  font-family:'DM Sans',sans-serif;
+  text-align:center;letter-spacing:0.1em;
+  outline:none;
+}
+.pwd-input:focus{border-color:var(--terra2);}
+.pwd-input::placeholder{color:var(--muted);letter-spacing:0.05em;font-size:0.85rem;}
+.pwd-btn{
+  width:100%;padding:14px;
+  background:var(--terra);color:var(--white);
+  border:none;border-radius:var(--radius-sm);
+  font-size:0.95rem;font-weight:600;
+  font-family:'DM Sans',sans-serif;cursor:pointer;
+  letter-spacing:0.05em;transition:background 0.2s;
+}
+.pwd-btn:active{background:var(--terra2);}
+.pwd-error{
+  font-size:0.75rem;color:#FF8080;text-align:center;
+  display:none;
+}
+.pwd-error.show{display:block;}
 </style>
 </head>
 <body>
 
+<!-- PASSWORD -->
+<div id="pwd-screen">
+  <div class="pwd-logo">CASA <em>YUMA</em></div>
+  <div class="pwd-subtitle">Briefing Diario · Staff</div>
+  <div class="pwd-box">
+    <input class="pwd-input" type="password" id="pwd-input" placeholder="Contraseña" onkeydown="if(event.key==='Enter')checkPwd()">
+    <button class="pwd-btn" onclick="checkPwd()">Entrar →</button>
+    <div class="pwd-error" id="pwd-error">Contraseña incorrecta. Inténtalo de nuevo.</div>
+  </div>
+</div>
+
 <!-- LOADING -->
-<div id="loading-screen">
+<div id="loading-screen" style="display:none;">
   <div class="loading-logo">CASA <em>YUMA</em></div>
   <div class="loading-spinner"></div>
   <div class="loading-step" id="loading-step">Cargando datos…</div>
@@ -357,6 +406,30 @@ main{padding:0;padding-bottom:88px;}
 </div>
 
 <script>
+/* ════════════════════════════════
+   PASSWORD
+════════════════════════════════ */
+const PWD = 'Gracias26';
+
+function checkPwd() {
+  const val = document.getElementById('pwd-input').value;
+  if (val === PWD) {
+    sessionStorage.setItem('cy_auth', '1');
+    document.getElementById('pwd-screen').style.display = 'none';
+    document.getElementById('loading-screen').style.display = 'flex';
+    loadDashboard();
+  } else {
+    document.getElementById('pwd-error').classList.add('show');
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-input').focus();
+  }
+}
+
+// Auto-login if already authenticated this session
+if (sessionStorage.getItem('cy_auth') === '1') {
+  document.getElementById('pwd-screen').style.display = 'none';
+  document.getElementById('loading-screen').style.display = 'flex';
+}
 /* ════════════════════════════════
    GOOGLE SHEETS CONFIG
 ════════════════════════════════ */
@@ -1041,7 +1114,9 @@ function filterType(cid,prefix,btn){btn.closest('.pills').querySelectorAll('.pil
 /* ════════════════════════════════
    INIT
 ════════════════════════════════ */
-loadDashboard();
+if (sessionStorage.getItem('cy_auth') === '1') {
+  loadDashboard();
+}
 </script>
 </body>
 </html>
