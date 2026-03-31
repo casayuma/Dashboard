@@ -660,24 +660,28 @@ function buildOcc(rows) {
     const cap  = parseInt(r[iCap])||0;
 
     if (type && type !== '-') {
-      // Normalize type name to short key
       const typeKey = type.toLowerCase().includes('garden') ? 'Garden' :
                       type.toLowerCase().includes('ocean')  ? 'Ocean' :
                       type.toLowerCase().includes('rooftop')? 'Rooftop' :
                       type.toLowerCase().includes('standard')? 'Standard' : type;
       byDate[dateKey].types[typeKey] = (byDate[dateKey].types[typeKey]||0) + sold;
       byDate[dateKey].totalSold += sold;
-      byDate[dateKey].totalCap  += cap;
+      // Store cap per type (fixed, doesn't change by day)
+      if (!byDate[dateKey].capPerType) byDate[dateKey].capPerType = {};
+      if (cap > 0) byDate[dateKey].capPerType[typeKey] = cap;
     }
   });
 
   // Build final array with arrivals/departures calculated from consecutive days
   const result = dateOrder.map(dateKey => {
     const entry = byDate[dateKey];
-    const diff  = entry.dObj - today;
     const totalSold = entry.totalSold;
-    const cap       = entry.totalCap || 25;
-    const o         = cap > 0 ? Math.round(totalSold / cap * 100) : 0;
+    // Total capacity = sum of capacity per room type (fixed values)
+    const cap = entry.capPerType
+      ? Object.values(entry.capPerType).reduce((a,b)=>a+b,0)
+      : 25;
+    const o = cap > 0 ? Math.round(totalSold / cap * 100) : 0;
+    const diff = entry.dObj - today;
     return {
       d: fmtDate(dateKey),
       s: totalSold,
