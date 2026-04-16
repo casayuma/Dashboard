@@ -568,13 +568,18 @@ function buildInhouse(rows) {
   const iDur   = ci(h,'duration of stay');
   const iCtry  = ci(h,'guest residence country','country');
   const iNotes = ci(h,'active reservation notes','notes','comentarios');
+  // Column M (index 12) = Guest Notes / Date of Birth (repurposed)
+  const iGuestNotes = ci(h,'guest notes','notas huesped','notas huésped') !== -1
+                      ? ci(h,'guest notes','notas huesped','notas huésped')
+                      : 12; // fallback to column M by position
   // Column K = ETD — detect by name first, fall back to index 10
   const iETD_byName = ci(h,'estimated time of departure','etd','hora estimada de salida','departure');
   const iETD = iETD_byName !== -1 ? iETD_byName : 10;
   const today  = todayStr();
   const tmrw   = tomorrowStr();
 
-  const result = data
+  // First pass — build all guest records
+  const rawGuests = data
     .filter(r => r[iRoom] && String(r[iRoom]).trim() && String(r[iRoom]).trim()!=='-')
     .map(r => {
       const room = String(r[iRoom]||'').trim().toUpperCase();
@@ -584,10 +589,10 @@ function buildInhouse(rows) {
       const n    = iDur>=0&&r[iDur] ? String(r[iDur]).trim() : nightsBetween(r[iCI],r[iCO]);
       const country = iCtry>=0 ? String(r[iCtry]||'').trim() : '';
       const notes = iNotes>=0 ? String(r[iNotes]||'').trim() : '';
+      const guestNotes = r[iGuestNotes] ? String(r[iGuestNotes]).trim() : '';
       const rawETD = r[iETD] ? String(r[iETD]).trim() : '';
       let etd = '';
       if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(rawETD)) {
-        // HH:MM or HH:MM:SS → take only HH:MM
         etd = rawETD.slice(0,5);
       } else if (/^0\.\d+$/.test(rawETD) || (/^\d+\.\d+$/.test(rawETD) && parseFloat(rawETD) < 1)) {
         const totalMins = Math.round(parseFloat(rawETD) * 24 * 60);
@@ -605,9 +610,32 @@ function buildInhouse(rows) {
       }
       const hesMatch = notes.match(/HES[\s:]+(\d{1,2}[:.]\d{2})/i);
       const hes = etd || (hesMatch ? hesMatch[1] : '');
-      return { room, name, ci:ci_, co, nights:n, country:country||'—', notes, hes, checkout:co===today, arriving:ci_===today };
+      // Combine notes: reservation notes + guest notes
+      const allNotes = [notes, guestNotes].filter(n=>n&&n!=='-').join(' · ');
+      return { room, name, ci:ci_, co, nights:n, country:country||'—', notes:allNotes, hes, checkout:co===today, arriving:ci_===today };
     })
     .filter(g=>/^[A-Z][0-9]+$/.test(g.room) && !/RESTAURANTE|PAYMASTER/i.test(g.name));
+
+  // Second pass — merge guests sharing the same room into one card
+  const roomMap = {};
+  rawGuests.forEach(g => {
+    if (!roomMap[g.room]) {
+      roomMap[g.room] = { ...g };
+    } else {
+      // Add second guest name with &
+      if (!roomMap[g.room].name.includes(g.name)) {
+        roomMap[g.room].name = roomMap[g.room].name + ' & ' + g.name;
+      }
+      // Merge notes if different
+      if (g.notes && !roomMap[g.room].notes.includes(g.notes)) {
+        roomMap[g.room].notes = [roomMap[g.room].notes, g.notes].filter(n=>n).join(' · ');
+      }
+      // Keep ETD if present
+      if (g.hes && !roomMap[g.room].hes) roomMap[g.room].hes = g.hes;
+    }
+  });
+
+  const result = Object.values(roomMap);
 
   result.quote = quote;
   return result;
