@@ -165,11 +165,11 @@ main{padding:0;padding-bottom:88px;}
 .nights-tag{background:var(--sand2);color:var(--wool2);padding:1px 6px;border-radius:4px;font-size:0.6rem;font-weight:600;}
 .res-card-date{font-size:0.65rem;font-weight:600;color:var(--terra);padding:6px 14px 0;letter-spacing:0.04em;}
 .tag-tmrw{background:#F5EBC4;color:#6B5410;font-size:0.6rem;padding:2px 6px;border-radius:4px;font-weight:700;}
-.tag-res-rest{background:#D4F0D8;color:#1A5C2A;}
-.tag-res-day{background:#D5E8E9;color:#1E5559;}
-.tag-res-spa{background:#F0DCE7;color:#6E1D4A;}
-.tag-res-ot{background:#FFDECE;color:#7A300A;}
-.tag-res-shoot{background:#E9E1F5;color:#4A2F7A;}
+.tag-res-rest{background:#3F4530;color:var(--wool);}
+.tag-res-day{background:#1E5559;color:var(--wool);}
+.tag-res-spa{background:#6E1D4A;color:var(--wool);}
+.tag-res-ot{background:#6B5B1E;color:var(--wool);}
+.tag-res-shoot{background:#5A3350;color:var(--wool);}
 .tag-confirmada{background:#D4F0D8;color:#1A5C2A;}
 .tag-pendiente{background:#FDECD0;color:var(--orange);}
 .tag-cancelada{background:#FAD8D8;color:var(--red);}
@@ -401,11 +401,11 @@ main{padding:0;padding-bottom:88px;}
       <div class="cards" id="res-daypass"></div>
 
       <div class="divider"><div class="divider-line"></div><div class="divider-lbl">Open Table</div><div class="divider-line"></div></div>
-      <div class="resumen-title"><span>📖 Open Table</span><span class="sec-count" style="background:#7A300A;" id="cnt-opentable">—</span></div>
+      <div class="resumen-title"><span>📖 Open Table</span><span class="sec-count" style="background:#6B5B1E;" id="cnt-opentable">—</span></div>
       <div class="cards" id="res-opentable"></div>
 
       <div class="divider"><div class="divider-line"></div><div class="divider-lbl">Restaurante</div><div class="divider-line"></div></div>
-      <div class="resumen-title"><span>🍽️ Restaurante</span><span class="sec-count" style="background:#1A5C2A;" id="cnt-rest">—</span></div>
+      <div class="resumen-title"><span>🍽️ Restaurante</span><span class="sec-count" style="background:#3F4530;" id="cnt-rest">—</span></div>
       <div class="cards" id="res-restaurante"></div>
 
       <div class="divider"><div class="divider-line"></div><div class="divider-lbl">Site Inspection</div><div class="divider-line"></div></div>
@@ -413,7 +413,7 @@ main{padding:0;padding-bottom:88px;}
       <div class="cards" id="res-spa"></div>
 
       <div class="divider"><div class="divider-line"></div><div class="divider-lbl">Shooting</div><div class="divider-line"></div></div>
-      <div class="resumen-title"><span>📸 Shooting</span><span class="sec-count" style="background:#4A2F7A;" id="cnt-shooting">—</span></div>
+      <div class="resumen-title"><span>📸 Shooting</span><span class="sec-count" style="background:#5A3350;" id="cnt-shooting">—</span></div>
       <div class="cards" id="res-shooting"></div>
 
       <!-- hidden container for search -->
@@ -1057,7 +1057,9 @@ function renderDashboard(INHOUSE, ARRIVALS, CHECKOUTS, OCC, RESERVAS) {
 
   // Reservas — split by type
   const byType = (t) => RESERVAS.filter(r=>r.tipo.toLowerCase()===t.toLowerCase());
-  const daypass    = byType('Day Pass');
+  // Day Pass ahora incluye subtipos: "Day Pass Escape", "Day Pass Retreat", "Day Pass Sanctuary", etc.
+  const byPrefix = (p) => RESERVAS.filter(r=>r.tipo.toLowerCase().startsWith(p.toLowerCase()));
+  const daypass    = byPrefix('Day Pass');
   const opentable  = byType('Open Table');
   const restaurante= byType('Restaurante');
   const spa        = byType('Site Inspection');
@@ -1180,11 +1182,15 @@ function cardInhouse(g,pfx){
 
 function cardReserva(r, pfx) {
   const id = pfx+'_'+r.nombre.replace(/\s/g,'_').slice(0,20)+'_'+r.hora;
-  const typeTag = {
-    'restaurante': 'tag-res-rest', 'day pass': 'tag-res-day',
+  const tipoLower = (r.tipo||'').toLowerCase();
+  const isDayPass = tipoLower.startsWith('day pass');
+  const typeTag = isDayPass ? 'tag-res-day' : ({
+    'restaurante': 'tag-res-rest',
     'site inspection': 'tag-res-spa', 'open table': 'tag-res-ot',
     'shooting': 'tag-res-shoot'
-  }[r.tipo.toLowerCase()] || 'tag-inhouse';
+  }[tipoLower] || 'tag-inhouse');
+  // Si es Day Pass con subtipo (ej. "Day Pass Escape"), extraemos el nombre del paquete
+  const paquete = isDayPass ? (r.tipo||'').replace(/day pass\s*/i,'').trim() : '';
   const statusTag = {
     'confirmada': 'tag-confirmada', 'pendiente': 'tag-pendiente', 'cancelada': 'tag-cancelada'
   }[r.estado.toLowerCase()] || '';
@@ -1195,6 +1201,7 @@ function cardReserva(r, pfx) {
       <div class="card-info">
         <div class="guest-name">${esc(r.nombre)}</div>
         <div class="guest-meta">
+          ${paquete ? `<span class="tag ${typeTag}">${esc(paquete)}</span>` : ''}
           ${r.estado ? `<span class="tag ${statusTag}">${esc(r.estado)}</span>` : ''}
           ${r.personas ? `<span class="nights-tag">👥 ${esc(r.personas)}</span>` : ''}
           ${!r.isToday ? `<span class="tag-tmrw">Mañana ${r.fecha}</span>` : ''}
