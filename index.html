@@ -169,6 +169,7 @@ main{padding:0;padding-bottom:88px;}
 .tag-res-day{background:#D5E8E9;color:#1E5559;}
 .tag-res-spa{background:#F0DCE7;color:#6E1D4A;}
 .tag-res-ot{background:#FFDECE;color:#7A300A;}
+.tag-res-shoot{background:#E9E1F5;color:#4A2F7A;}
 .tag-confirmada{background:#D4F0D8;color:#1A5C2A;}
 .tag-pendiente{background:#FDECD0;color:var(--orange);}
 .tag-cancelada{background:#FAD8D8;color:var(--red);}
@@ -410,6 +411,10 @@ main{padding:0;padding-bottom:88px;}
       <div class="divider"><div class="divider-line"></div><div class="divider-lbl">Site Inspection</div><div class="divider-line"></div></div>
       <div class="resumen-title"><span>🏨 Site Inspection</span><span class="sec-count" style="background:#6E1D4A;" id="cnt-spa">—</span></div>
       <div class="cards" id="res-spa"></div>
+
+      <div class="divider"><div class="divider-line"></div><div class="divider-lbl">Shooting</div><div class="divider-line"></div></div>
+      <div class="resumen-title"><span>📸 Shooting</span><span class="sec-count" style="background:#4A2F7A;" id="cnt-shooting">—</span></div>
+      <div class="cards" id="res-shooting"></div>
 
       <!-- hidden container for search -->
       <div id="res-all" style="display:none;"></div>
@@ -1056,17 +1061,20 @@ function renderDashboard(INHOUSE, ARRIVALS, CHECKOUTS, OCC, RESERVAS) {
   const opentable  = byType('Open Table');
   const restaurante= byType('Restaurante');
   const spa        = byType('Site Inspection');
+  const shooting   = byType('Shooting');
 
   sc('cnt-res',      RESERVAS.length,      'reserva','reservas');
   sc('cnt-daypass',  daypass.length,        'reserva','reservas');
   sc('cnt-opentable',opentable.length,      'reserva','reservas');
   sc('cnt-rest',     restaurante.length,    'reserva','reservas');
   sc('cnt-spa',      spa.length,            'reserva','reservas');
+  sc('cnt-shooting', shooting.length,       'reserva','reservas');
 
   set('res-daypass',    daypass.map(r=>cardReserva(r,'dp')));
   set('res-opentable',  opentable.map(r=>cardReserva(r,'ot')));
   set('res-restaurante',restaurante.map(r=>cardReserva(r,'rs')));
   set('res-spa',        spa.map(r=>cardReserva(r,'sp')));
+  set('res-shooting',   shooting.map(r=>cardReserva(r,'sh')));
 
   // Occupancy
   const TYPE_ICON = {Garden:'🌿', Ocean:'🌊', Rooftop:'🌇', Standard:'🛏'};
@@ -1174,7 +1182,8 @@ function cardReserva(r, pfx) {
   const id = pfx+'_'+r.nombre.replace(/\s/g,'_').slice(0,20)+'_'+r.hora;
   const typeTag = {
     'restaurante': 'tag-res-rest', 'day pass': 'tag-res-day',
-    'site inspection': 'tag-res-spa', 'open table': 'tag-res-ot'
+    'site inspection': 'tag-res-spa', 'open table': 'tag-res-ot',
+    'shooting': 'tag-res-shoot'
   }[r.tipo.toLowerCase()] || 'tag-inhouse';
   const statusTag = {
     'confirmada': 'tag-confirmada', 'pendiente': 'tag-pendiente', 'cancelada': 'tag-cancelada'
@@ -1226,7 +1235,7 @@ function filterC(cid,val){
   // For reservas: search across all type containers
   if(cid==='res-all'){
     let anyVisible=false, anyCard=false;
-    ['res-daypass','res-opentable','res-restaurante','res-spa'].forEach(id=>{
+    ['res-daypass','res-opentable','res-restaurante','res-spa','res-shooting'].forEach(id=>{
       const container=document.getElementById(id);
       container.querySelectorAll('.card').forEach(c=>{
         anyCard=true;
