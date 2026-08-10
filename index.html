@@ -122,6 +122,71 @@ main{padding:0;padding-bottom:88px;}
 .kpi-val.sm{font-size:1.7rem;}
 .kpi-sub{font-size:0.55rem;color:var(--muted);margin-top:3px;line-height:1.3;}
 
+/* ── OCUPACIÓN GENERAL (resumen gráfico) ── */
+.og-wrap{padding:14px 14px 0;}
+.og-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;padding:15px 14px 13px;}
+.og-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:13px;}
+.og-title{font-family:'PT Mono',monospace;font-size:1.18rem;font-weight:600;color:var(--wool);}
+.og-date{font-size:0.56rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);white-space:nowrap;}
+.og-occ{display:flex;align-items:center;gap:14px;padding:2px 2px 13px;border-bottom:1px solid var(--border);margin-bottom:12px;}
+.og-occ-num{font-family:'PT Mono',monospace;font-size:2.6rem;font-weight:600;line-height:1;color:var(--terra);flex-shrink:0;min-width:88px;}
+.og-occ-meta{flex:1;display:flex;flex-direction:column;gap:7px;min-width:0;}
+.og-occ-bar{background:var(--sand2);border-radius:5px;height:13px;overflow:hidden;}
+.og-occ-fill{height:100%;background:var(--terra);border-radius:5px;transition:width .5s ease;}
+.og-occ-sub{font-size:0.62rem;color:var(--muted);line-height:1.4;}
+.og-occ-sub strong{color:var(--wool2);}
+.og-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.og-tile{background:var(--sand);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px 6px 11px;cursor:pointer;font-family:'Courier New',Courier,monospace;position:relative;overflow:hidden;transition:transform .12s,border-color .12s;text-align:center;}
+.og-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.og-tile.t-arr::before{background:var(--green);}
+.og-tile.t-dep::before{background:var(--red);}
+.og-tile.t-ih::before{background:var(--teal);}
+.og-tile:active{transform:scale(0.97);border-color:var(--wool2);}
+.og-tile-num{font-family:'PT Mono',monospace;font-size:1.95rem;font-weight:600;line-height:1;color:var(--wool);}
+.t-arr .og-tile-num{color:var(--green);}
+.t-dep .og-tile-num{color:var(--red);}
+.t-ih .og-tile-num{color:var(--pacific2);}
+.og-tile-lbl{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);font-weight:600;margin-top:6px;line-height:1.2;}
+.og-hint{text-align:center;font-size:0.57rem;color:var(--muted);margin-top:11px;opacity:0.8;letter-spacing:0.02em;}
+
+/* ── TARJETAS RESUMEN DESPLEGABLES (Comida / Amenidades) ── */
+.sum-wrap{padding:10px 14px 0;}
+.sum-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;}
+.sum-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:13px 14px;cursor:pointer;}
+.sum-title{font-family:'PT Mono',monospace;font-size:1.1rem;font-weight:600;color:var(--wool);}
+.sum-chev{transition:transform .3s;color:var(--muted);font-size:0.8rem;flex-shrink:0;}
+.sum-chev.open{transform:rotate(180deg);}
+.xp{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+.xp.open{max-height:680px;}
+
+/* Comida de Personal */
+.cp-today{padding:0 14px 14px;display:flex;flex-direction:column;gap:3px;}
+.cp-today-lbl{font-size:0.57rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--terra);font-weight:700;}
+.cp-today-meal{font-size:1.05rem;color:var(--wool);font-weight:600;line-height:1.3;}
+.cp-row{display:flex;justify-content:space-between;gap:12px;padding:9px 14px;border-top:1px solid var(--border);font-size:0.78rem;}
+.cp-row-dia{color:var(--muted);font-weight:600;min-width:86px;}
+.cp-row-meal{color:var(--wool2);text-align:right;flex:1;}
+.cp-row-today{background:rgba(225,208,130,0.08);}
+.cp-row-today .cp-row-dia{color:var(--terra);}
+.cp-row-today .cp-row-meal{color:var(--wool);font-weight:600;}
+
+/* Solicitudes A&B */
+.ab-nums{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:2px 14px 14px;}
+.ab-num-block{background:var(--sand);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 6px 10px;text-align:center;position:relative;overflow:hidden;}
+.ab-num-block::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--caracol2);}
+.ab-num-block.tmrw::before{background:var(--sand2);}
+.ab-num{font-family:'PT Mono',monospace;font-size:2rem;font-weight:600;line-height:1;color:var(--caracol-accent);}
+.ab-num-block.tmrw .ab-num{color:var(--wool2);}
+.ab-num-lbl{font-size:0.55rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);font-weight:600;margin-top:6px;}
+.ab-detail-h{font-size:0.56rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--terra);font-weight:700;padding:9px 14px 4px;border-top:1px solid var(--border);}
+.ab-row{display:flex;align-items:center;gap:8px;padding:7px 14px;font-size:0.74rem;}
+.ab-row-hab{font-weight:700;color:var(--wool);min-width:38px;}
+.ab-row-tipo{flex:1;color:var(--wool2);}
+.ab-row-est{font-size:0.57rem;font-weight:700;padding:2px 7px;border-radius:4px;white-space:nowrap;}
+.ab-est-ok{background:#D0F0DC;color:var(--green);}
+.ab-est-pend{background:#FDECD0;color:var(--orange);}
+.ab-empty{padding:14px;text-align:center;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);}
+
 .sec-head{padding:18px 14px 8px;display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
 .sec-title{font-family:'PT Mono',monospace;font-size:1.2rem;font-weight:600;color:var(--wool);}
 .sec-count{font-size:0.63rem;background:var(--charcoal);color:var(--wool);padding:3px 9px;border-radius:20px;font-weight:500;white-space:nowrap;}
@@ -337,10 +402,66 @@ main{padding:0;padding-bottom:88px;}
   <main>
     <!-- RESUMEN -->
     <div class="section active" id="s-resumen">
-      <div class="kpi-row">
-        <div class="kpi k-occ"><div class="kpi-lbl">Ocupación</div><div class="kpi-val" id="kpi-occ">—</div><div class="kpi-sub" id="kpi-occ-sub">—</div></div>
-        <div class="kpi k-cout"><div class="kpi-lbl">Salidas</div><div class="kpi-val sm" id="kpi-cout">—</div><div class="kpi-sub">Hoy</div></div>
-        <div class="kpi k-cin"><div class="kpi-lbl">Llegadas</div><div class="kpi-val sm" id="kpi-cin">—</div><div class="kpi-sub">Hoy</div></div>
+      <!-- ═══ OCUPACIÓN GENERAL ═══ -->
+      <div class="og-wrap">
+        <div class="og-card">
+          <div class="og-head">
+            <span class="og-title">📊 Ocupación General</span>
+            <span class="og-date" id="og-date">—</span>
+          </div>
+          <div class="og-occ">
+            <div class="og-occ-num" id="og-occ">—</div>
+            <div class="og-occ-meta">
+              <div class="og-occ-bar"><div class="og-occ-fill" id="og-occ-fill" style="width:0%"></div></div>
+              <div class="og-occ-sub" id="og-occ-sub">—</div>
+            </div>
+          </div>
+          <div class="og-tiles">
+            <button class="og-tile t-arr" onclick="goNav('llegadas')">
+              <div class="og-tile-num" id="og-arr">—</div>
+              <div class="og-tile-lbl">🌅 Llegadas</div>
+            </button>
+            <button class="og-tile t-dep" onclick="goNav('salidas')">
+              <div class="og-tile-num" id="og-dep">—</div>
+              <div class="og-tile-lbl">🧳 Salidas</div>
+            </button>
+            <button class="og-tile t-ih" onclick="goNav('inhouse')">
+              <div class="og-tile-num" id="og-ih">—</div>
+              <div class="og-tile-lbl">🏠 En Casa</div>
+            </button>
+          </div>
+          <div class="og-hint">Toca cada bloque para ver el detalle →</div>
+        </div>
+      </div>
+
+      <!-- ═══ COMIDA DE PERSONAL ═══ -->
+      <div class="sum-wrap">
+        <div class="sum-card">
+          <div class="sum-head" onclick="toggleExpand('cp')">
+            <span class="sum-title">🍽️ Comida de Personal</span>
+            <span class="sum-chev" id="cp-chev">▾</span>
+          </div>
+          <div class="cp-today">
+            <span class="cp-today-lbl" id="cp-today-lbl">Hoy</span>
+            <span class="cp-today-meal" id="cp-today-meal">—</span>
+          </div>
+          <div class="xp" id="cp-exp"></div>
+        </div>
+      </div>
+
+      <!-- ═══ SOLICITUDES A&B ═══ -->
+      <div class="sum-wrap">
+        <div class="sum-card">
+          <div class="sum-head" onclick="toggleExpand('ab')">
+            <span class="sum-title">🎁 Solicitudes A&amp;B</span>
+            <span class="sum-chev" id="ab-chev">▾</span>
+          </div>
+          <div class="ab-nums">
+            <div class="ab-num-block"><div class="ab-num" id="ab-hoy">0</div><div class="ab-num-lbl">Pendientes hoy</div></div>
+            <div class="ab-num-block tmrw"><div class="ab-num" id="ab-manana">0</div><div class="ab-num-lbl">Pendientes mañana</div></div>
+          </div>
+          <div class="xp" id="ab-exp"></div>
+        </div>
       </div>
 
       <div class="divider" style="padding-top:24px;"><div class="divider-line"></div><div class="divider-lbl">Llegan hoy</div><div class="divider-line"></div></div>
@@ -531,6 +652,8 @@ const SHEETS = {
   arrivals: '157627560',
   occ:      '4003628',
   reservas: '670213106',
+  personal:   '454495157',
+  amenidades: '892036651',
 };
 
 function sheetURL(gid) {
@@ -978,6 +1101,51 @@ function buildReservas(rows) {
   }).filter(Boolean);
 }
 
+function buildPersonal(rows) {
+  const hi = findHeader(rows, ['día','dia','comida','menú','menu','platillo']);
+  if (hi === -1) return [];
+  const h = rows[hi].map(x => String(x||'').trim().toLowerCase());
+  const iDia = ci(h,'día','dia','day');
+  const iCom = ci(h,'comida','platillo','menú','menu','plato');
+  return rows.slice(hi+1).map(r => ({
+    dia:    iDia>=0 ? String(r[iDia]||'').trim() : '',
+    comida: iCom>=0 ? String(r[iCom]||'').trim() : '',
+  })).filter(x => x.dia);
+}
+
+function buildAmenidades(rows) {
+  const hi = findHeader(rows, ['fecha','estado','habitación','habitacion','tipo','amenidad']);
+  if (hi === -1) return [];
+  const h = rows[hi].map(x => String(x||'').trim().toLowerCase());
+  const iF = ci(h,'fecha','date','día','dia');
+  const iE = ci(h,'estado','status');
+  const iH = ci(h,'habitación','habitacion','room','hab','cuarto');
+  const iT = ci(h,'tipo de amenidad','tipo','amenidad','detalle');
+  return rows.slice(hi+1).map(r => ({
+    fecha:  iF>=0 ? String(r[iF]||'').trim() : '',
+    estado: iE>=0 ? String(r[iE]||'').trim() : '',
+    hab:    iH>=0 ? String(r[iH]||'').trim() : '',
+    tipo:   iT>=0 ? String(r[iT]||'').trim() : '',
+  })).filter(x => x.fecha);
+}
+
+function ameniCounts(AMENI) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const tmrw  = new Date(today); tmrw.setDate(tmrw.getDate()+1);
+  const hoyList = [], mananaList = [];
+  AMENI.forEach(a => {
+    const d = toDate(a.fecha); if (!d) return; d.setHours(0,0,0,0);
+    if (+d === +today) hoyList.push(a);
+    else if (+d === +tmrw) mananaList.push(a);
+  });
+  // Ordenar: pendientes primero, entregadas al final
+  const sortPend = (a,b) => (/entreg/i.test(a.estado)?1:0) - (/entreg/i.test(b.estado)?1:0);
+  hoyList.sort(sortPend); mananaList.sort(sortPend);
+  // El número grande cuenta SOLO pendientes (todo lo que no está Entregada)
+  const pend = list => list.filter(a => !/entreg/i.test(a.estado)).length;
+  return { hoy: pend(hoyList), manana: pend(mananaList), hoyList, mananaList };
+}
+
 /* ════════════════════════════════
    MAIN LOAD
 ════════════════════════════════ */
@@ -995,6 +1163,12 @@ async function loadDashboard() {
     setStep('Cargando Reservas…');
     const resRows = await fetchSheet(SHEETS.reservas);
 
+    let perRows = [], ameRows = [];
+    setStep('Cargando Comida de Personal…');
+    try { perRows = await fetchSheet(SHEETS.personal); } catch(e){ console.warn('Personal:', e); }
+    setStep('Cargando Amenidades…');
+    try { ameRows = await fetchSheet(SHEETS.amenidades); } catch(e){ console.warn('Amenidades:', e); }
+
     setStep('Generando briefing…');
 
     const INHOUSE   = buildInhouse(ihRows);
@@ -1002,8 +1176,10 @@ async function loadDashboard() {
     const CHECKOUTS = INHOUSE.filter(g => g.checkout);
     const OCC       = buildOcc(occRows);
     const RESERVAS  = buildReservas(resRows);
+    const PERSONAL  = buildPersonal(perRows);
+    const AMENIDADES= buildAmenidades(ameRows);
 
-    renderDashboard(INHOUSE, ARRIVALS, CHECKOUTS, OCC, RESERVAS);
+    renderDashboard(INHOUSE, ARRIVALS, CHECKOUTS, OCC, RESERVAS, PERSONAL, AMENIDADES);
 
   } catch(e) {
     console.error(e);
@@ -1016,7 +1192,7 @@ async function loadDashboard() {
 /* ════════════════════════════════
    RENDER
 ════════════════════════════════ */
-function renderDashboard(INHOUSE, ARRIVALS, CHECKOUTS, OCC, RESERVAS) {
+function renderDashboard(INHOUSE, ARRIVALS, CHECKOUTS, OCC, RESERVAS, PERSONAL, AMENIDADES) {
   const sc=(id,n,w1,w2)=>{const el=document.getElementById(id);if(el)el.textContent=n+' '+(n===1?w1:w2);};
 
   // Quote of the day
@@ -1030,10 +1206,44 @@ function renderDashboard(INHOUSE, ARRIVALS, CHECKOUTS, OCC, RESERVAS) {
 
   // KPIs
   const todayOcc = OCC.find(d=>d.today);
-  document.getElementById('kpi-occ').textContent     = todayOcc ? todayOcc.o+'%' : '—';
-  document.getElementById('kpi-occ-sub').textContent = todayOcc ? todayOcc.s+'/'+todayOcc.cap+' hab.' : INHOUSE.length+' hab.';
-  document.getElementById('kpi-cout').textContent    = CHECKOUTS.length;
-  document.getElementById('kpi-cin').textContent     = ARRIVALS.length;
+  document.getElementById('og-occ').textContent      = todayOcc ? todayOcc.o+'%' : '—';
+  document.getElementById('og-occ-fill').style.width = (todayOcc ? todayOcc.o : 0)+'%';
+  document.getElementById('og-occ-sub').innerHTML    = todayOcc
+    ? '<strong>'+todayOcc.s+'</strong> de '+todayOcc.cap+' habitaciones ocupadas'
+    : '<strong>'+INHOUSE.length+'</strong> huéspedes en casa';
+  document.getElementById('og-arr').textContent      = ARRIVALS.length;
+  document.getElementById('og-dep').textContent      = CHECKOUTS.length;
+  document.getElementById('og-ih').textContent       = INHOUSE.length;
+
+  // ── Comida de Personal ──
+  PERSONAL = PERSONAL || [];
+  const DIAS_FULL=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const todayName=DIAS_FULL[new Date().getDay()];
+  const tMeal=PERSONAL.find(p=>p.dia.toLowerCase()===todayName.toLowerCase());
+  const cpl=document.getElementById('cp-today-lbl'); if(cpl) cpl.textContent='Hoy · '+todayName;
+  const cpm=document.getElementById('cp-today-meal'); if(cpm) cpm.textContent=(tMeal&&tMeal.comida)?tMeal.comida:'Sin menú registrado';
+  const cpe=document.getElementById('cp-exp');
+  if(cpe) cpe.innerHTML = PERSONAL.length ? PERSONAL.map(p=>{
+    const it=p.dia.toLowerCase()===todayName.toLowerCase();
+    return `<div class="cp-row ${it?'cp-row-today':''}"><span class="cp-row-dia">${esc(p.dia)}</span><span class="cp-row-meal">${esc(p.comida||'—')}</span></div>`;
+  }).join('') : '<div class="ab-empty">Sin menú semanal cargado</div>';
+
+  // ── Solicitudes A&B (Amenidades) ──
+  const AC=ameniCounts(AMENIDADES||[]);
+  const abh=document.getElementById('ab-hoy'); if(abh) abh.textContent=AC.hoy;
+  const abm=document.getElementById('ab-manana'); if(abm) abm.textContent=AC.manana;
+  const abe=document.getElementById('ab-exp');
+  if(abe){
+    const blk=(title,list)=>{
+      if(!list.length) return '';
+      const ent=list.filter(a=>/entreg/i.test(a.estado)).length;
+      const pen=list.length-ent;
+      const meta=[pen?pen+' pendiente'+(pen!==1?'s':''):'', ent?ent+' entregada'+(ent!==1?'s':''):''].filter(Boolean).join(' · ');
+      return `<div class="ab-detail-h">${title} — ${meta}</div>`+list.map(a=>`<div class="ab-row"><span class="ab-row-hab">${esc(a.hab||'—')}</span><span class="ab-row-tipo">${esc(a.tipo||'')}</span>${a.estado?`<span class="ab-row-est ab-est-${/entreg/i.test(a.estado)?'ok':'pend'}">${esc(a.estado)}</span>`:''}</div>`).join('');
+    };
+    const html=blk('Hoy',AC.hoyList)+blk('Mañana',AC.mananaList);
+    abe.innerHTML = html || '<div class="ab-empty">Sin amenidades programadas</div>';
+  }
 
   sc('cnt-rarr', ARRIVALS.length,  'reserva','reservas');
   sc('cnt-arr',  ARRIVALS.length,  'reserva','reservas');
@@ -1130,6 +1340,8 @@ function renderDashboard(INHOUSE, ARRIVALS, CHECKOUTS, OCC, RESERVAS) {
   const DIAS=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   document.getElementById('topDate').textContent=DIAS[now.getDay()]+', '+now.getDate()+' de '+MESES[now.getMonth()]+' '+now.getFullYear();
+  const ogd=document.getElementById('og-date');
+  if(ogd) ogd.textContent='Hoy · '+now.getDate()+' '+MESES[now.getMonth()].slice(0,3);
   document.getElementById('banner-txt').textContent='Reporte matutino · '+now.getDate()+' de '+MESES[now.getMonth()];
   document.getElementById('last-updated').textContent='Última actualización: '+now.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
 
@@ -1236,6 +1448,20 @@ function go(id,btn){
   document.getElementById('s-'+id).classList.add('active');
   if(btn)btn.classList.add('active');
   window.scrollTo(0,0);
+}
+// Navega a una sección y resalta el ítem correcto de la barra inferior (para los tiles del resumen)
+function goNav(id){
+  const nav=[...document.querySelectorAll('.bottom-nav .nav-item')]
+    .find(b=>(b.getAttribute('onclick')||'').includes("go('"+id+"'"));
+  go(id, nav);
+}
+// Despliega/colapsa las tarjetas resumen (Comida de Personal / Solicitudes A&B)
+function toggleExpand(pfx){
+  const exp=document.getElementById(pfx+'-exp');
+  const chev=document.getElementById(pfx+'-chev');
+  if(!exp) return;
+  const open=exp.classList.toggle('open');
+  if(chev) chev.classList.toggle('open',open);
 }
 function filterC(cid,val){
   const q=val.toLowerCase().trim();
