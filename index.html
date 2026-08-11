@@ -106,7 +106,7 @@ body.dash #dashboard-screen{display:block;}
 .nav-item.active::after{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:var(--caracol-accent);border-radius:0 0 2px 2px;}
 .nav-icon{font-size:1.2rem;line-height:1;}
 
-main{padding:0;padding-bottom:88px;}
+main{padding:0;padding-bottom:28px;}
 .section{display:none;}
 .section.active{display:block;}
 
@@ -186,6 +186,19 @@ main{padding:0;padding-bottom:88px;}
 .ab-est-ok{background:#D0F0DC;color:var(--green);}
 .ab-est-pend{background:#FDECD0;color:var(--orange);}
 .ab-empty{padding:14px;text-align:center;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);}
+
+/* ── NAVEGACIÓN POR TOQUE (sin barra de pestañas) ── */
+.og-occ-link{cursor:pointer;border-radius:var(--radius-sm);transition:background .12s;margin:-2px -6px 10px;padding:2px 6px 13px;}
+.og-occ-link:active{background:rgba(234,227,205,0.05);}
+.og-occ-go{font-size:1.7rem;color:var(--muted);flex-shrink:0;align-self:center;line-height:1;}
+.nav-card{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px 14px;cursor:pointer;font-family:'PT Mono',monospace;text-align:left;transition:border-color .12s;}
+.nav-card:active{border-color:var(--wool2);}
+.nav-card-title{font-size:1.1rem;font-weight:600;color:var(--wool);}
+.nav-card-right{display:flex;align-items:center;gap:11px;flex-shrink:0;}
+.nav-card-count{font-family:'Courier New',Courier,monospace;font-size:0.6rem;color:var(--muted);background:var(--sand);border:1px solid var(--border);padding:3px 10px;border-radius:20px;white-space:nowrap;}
+.nav-card-chev{font-size:1.7rem;color:var(--caracol-accent);line-height:1;}
+.back-btn{display:inline-flex;align-items:center;gap:7px;margin:14px 14px 4px;background:var(--white);border:1px solid var(--border);color:var(--wool);font-family:'Courier New',Courier,monospace;font-size:0.72rem;font-weight:700;letter-spacing:0.03em;padding:9px 15px;border-radius:var(--radius-sm);cursor:pointer;transition:background .12s;}
+.back-btn:active{background:var(--sand);}
 
 .sec-head{padding:18px 14px 8px;display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
 .sec-title{font-family:'PT Mono',monospace;font-size:1.2rem;font-weight:600;color:var(--wool);}
@@ -409,12 +422,13 @@ main{padding:0;padding-bottom:88px;}
             <span class="og-title">📊 Ocupación General</span>
             <span class="og-date" id="og-date">—</span>
           </div>
-          <div class="og-occ">
+          <div class="og-occ og-occ-link" onclick="go('ocupacion')">
             <div class="og-occ-num" id="og-occ">—</div>
             <div class="og-occ-meta">
               <div class="og-occ-bar"><div class="og-occ-fill" id="og-occ-fill" style="width:0%"></div></div>
               <div class="og-occ-sub" id="og-occ-sub">—</div>
             </div>
+            <span class="og-occ-go">›</span>
           </div>
           <div class="og-tiles">
             <button class="og-tile t-arr" onclick="goNav('llegadas')">
@@ -464,25 +478,20 @@ main{padding:0;padding-bottom:88px;}
         </div>
       </div>
 
-      <div class="divider" style="padding-top:24px;"><div class="divider-line"></div><div class="divider-lbl">Llegan hoy</div><div class="divider-line"></div></div>
-      <div class="resumen-title"><span>🌅 Llegadas</span><span class="sec-count" id="cnt-rarr">—</span></div>
-      <div class="pills"><button class="pill on" onclick="filterType('r-arriving','all',this)">Todos</button><button class="pill" onclick="filterType('r-arriving','G',this)">🌿 Garden</button><button class="pill" onclick="filterType('r-arriving','R',this)">🌇 Rooftop</button><button class="pill" onclick="filterType('r-arriving','O',this)">🌊 Ocean</button><button class="pill" onclick="filterType('r-arriving','S',this)">🛏 Standard</button></div>
-      <div class="cards" id="r-arriving"></div>
+      <!-- ═══ ACCESO A RESERVAS ═══ -->
+      <div class="sum-wrap">
+        <button class="nav-card" onclick="go('reservas')">
+          <span class="nav-card-title">🎫 Reservas</span>
+          <span class="nav-card-right"><span class="nav-card-count" id="home-res">—</span><span class="nav-card-chev">›</span></span>
+        </button>
+      </div>
 
-      <div class="divider"><div class="divider-line"></div><div class="divider-lbl">Check-outs · hoy</div><div class="divider-line"></div></div>
-      <div class="resumen-title"><span>🧳 Salen hoy</span><span class="sec-count" style="background:var(--red);" id="cnt-rco">—</span></div>
-      <div class="pills"><button class="pill on" onclick="filterType('r-checkouts','all',this)">Todos</button><button class="pill" onclick="filterType('r-checkouts','G',this)">🌿 Garden</button><button class="pill" onclick="filterType('r-checkouts','R',this)">🌇 Rooftop</button><button class="pill" onclick="filterType('r-checkouts','O',this)">🌊 Ocean</button><button class="pill" onclick="filterType('r-checkouts','S',this)">🛏 Standard</button></div>
-      <div class="cards" id="r-checkouts"></div>
-
-      <div class="divider"><div class="divider-line"></div><div class="divider-lbl">Continúan · se quedan en el hotel</div><div class="divider-line"></div></div>
-      <div class="resumen-title"><span>🏠 Continúan</span><span class="sec-count" style="background:var(--teal);" id="stay-cnt">—</span></div>
-      <div class="pills"><button class="pill on" onclick="filterType('r-staying','all',this)">Todos</button><button class="pill" onclick="filterType('r-staying','G',this)">🌿 Garden</button><button class="pill" onclick="filterType('r-staying','R',this)">🌇 Rooftop</button><button class="pill" onclick="filterType('r-staying','O',this)">🌊 Ocean</button><button class="pill" onclick="filterType('r-staying','S',this)">🛏 Standard</button></div>
-      <div class="cards" id="r-staying"></div>
       <div class="last-updated" id="last-updated"></div>
     </div>
 
     <!-- LLEGADAS -->
     <div class="section" id="s-llegadas">
+      <button class="back-btn" onclick="go('resumen')">← Inicio</button>
       <div class="sec-head"><div class="sec-title">🌅 Llegadas · hoy</div><div class="sec-count" id="cnt-arr">—</div></div>
       <div class="search-wrap"><input class="search-input" type="search" placeholder="Buscar huésped o habitación…" oninput="filterC('arr-cards',this.value)"></div>
       <div class="cards" id="arr-cards"></div>
@@ -491,6 +500,7 @@ main{padding:0;padding-bottom:88px;}
 
     <!-- SALIDAS -->
     <div class="section" id="s-salidas">
+      <button class="back-btn" onclick="go('resumen')">← Inicio</button>
       <div class="sec-head"><div class="sec-title">🧳 Check-outs · hoy</div><div class="sec-count" style="background:var(--red);" id="cnt-co">—</div></div>
       <div class="search-wrap"><input class="search-input" type="search" placeholder="Buscar huésped o habitación…" oninput="filterC('co-cards',this.value)"></div>
       <div class="cards" id="co-cards"></div>
@@ -499,6 +509,7 @@ main{padding:0;padding-bottom:88px;}
 
     <!-- IN-HOUSE -->
     <div class="section" id="s-inhouse">
+      <button class="back-btn" onclick="go('resumen')">← Inicio</button>
       <div class="sec-head"><div class="sec-title">🏠 In-House · hoy</div><div class="sec-count" style="background:var(--teal);" id="cnt-ih">—</div></div>
       <div class="search-wrap"><input class="search-input" type="search" placeholder="Buscar huésped o habitación…" oninput="filterC('ih-cards',this.value)"></div>
       <div class="pills"><button class="pill on" onclick="filterType('ih-cards','all',this)">Todos</button><button class="pill" onclick="filterType('ih-cards','G',this)">🌿 Garden</button><button class="pill" onclick="filterType('ih-cards','R',this)">🌇 Rooftop</button><button class="pill" onclick="filterType('ih-cards','O',this)">🌊 Ocean</button><button class="pill" onclick="filterType('ih-cards','S',this)">🛏 Standard</button></div>
@@ -508,12 +519,14 @@ main{padding:0;padding-bottom:88px;}
 
     <!-- OCUPACION -->
     <div class="section" id="s-ocupacion">
+      <button class="back-btn" onclick="go('resumen')">← Inicio</button>
       <div class="sec-head"><div class="sec-title">📊 Ocupación</div></div>
       <div class="occ-wrap" id="occ-wrap"></div>
     </div>
 
     <!-- RESERVAS -->
     <div class="section" id="s-reservas">
+      <button class="back-btn" onclick="go('resumen')">← Inicio</button>
       <div class="sec-head"><div class="sec-title">🎫 Reservas · hoy y mañana</div><div class="sec-count" id="cnt-res">—</div></div>
       <div class="search-wrap"><input class="search-input" type="search" placeholder="Buscar nombre o tipo…" oninput="filterC('res-all',this.value)"></div>
 
@@ -542,15 +555,6 @@ main{padding:0;padding-bottom:88px;}
       <div class="no-results" id="nores-res-all"><span class="nr-icon">🔍</span>No se encontraron resultados<div class="nr-hint">Intenta con otro nombre o tipo de reserva</div></div>
     </div>
   </main>
-
-  <nav class="bottom-nav">
-    <button class="nav-item active" onclick="go('resumen',this)"><span class="nav-icon">📋</span>Resumen</button>
-    <button class="nav-item" onclick="go('llegadas',this)"><span class="nav-icon">🌅</span>Llegadas</button>
-    <button class="nav-item" onclick="go('salidas',this)"><span class="nav-icon">🧳</span>Salidas</button>
-    <button class="nav-item" onclick="go('inhouse',this)"><span class="nav-icon">🏠</span>In-House</button>
-    <button class="nav-item" onclick="go('ocupacion',this)"><span class="nav-icon">📊</span>Ocup.</button>
-    <button class="nav-item" onclick="go('reservas',this)"><span class="nav-icon">🎫</span>Reservas</button>
-  </nav>
 </div>
 
 <script>
@@ -1259,11 +1263,8 @@ function renderDashboard(INHOUSE, ARRIVALS, CHECKOUTS, OCC, RESERVAS, PERSONAL, 
   const sI=[...INHOUSE].sort(roomSort);
 
   set('arr-cards',   sA.map(a=>cardArrival(a,'arr')));
-  set('r-arriving',  sA.map(a=>cardArrival(a,'rarr')));
   set('co-cards',    sC.map(c=>cardCheckout(c,'co')));
-  set('r-checkouts', sC.map(c=>cardCheckout(c,'rco')));
   set('ih-cards',    sI.map(g=>cardInhouse(g,'ih')));
-  set('r-staying',   staying.map(g=>cardInhouse(g,'rst')));
 
   // Reservas — split by type
   const byType = (t) => RESERVAS.filter(r=>r.tipo.toLowerCase()===t.toLowerCase());
@@ -1276,6 +1277,7 @@ function renderDashboard(INHOUSE, ARRIVALS, CHECKOUTS, OCC, RESERVAS, PERSONAL, 
   const shooting   = byType('Shooting');
 
   sc('cnt-res',      RESERVAS.length,      'reserva','reservas');
+  sc('home-res',     RESERVAS.length,      'reserva','reservas');
   sc('cnt-daypass',  daypass.length,        'reserva','reservas');
   sc('cnt-opentable',opentable.length,      'reserva','reservas');
   sc('cnt-rest',     restaurante.length,    'reserva','reservas');
@@ -1449,12 +1451,8 @@ function go(id,btn){
   if(btn)btn.classList.add('active');
   window.scrollTo(0,0);
 }
-// Navega a una sección y resalta el ítem correcto de la barra inferior (para los tiles del resumen)
-function goNav(id){
-  const nav=[...document.querySelectorAll('.bottom-nav .nav-item')]
-    .find(b=>(b.getAttribute('onclick')||'').includes("go('"+id+"'"));
-  go(id, nav);
-}
+// Navega a una sección de detalle (desde los bloques del Resumen)
+function goNav(id){ go(id); }
 // Despliega/colapsa las tarjetas resumen (Comida de Personal / Solicitudes A&B)
 function toggleExpand(pfx){
   const exp=document.getElementById(pfx+'-exp');
