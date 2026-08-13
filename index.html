@@ -472,36 +472,6 @@ main{padding:0;padding-bottom:28px;}
         </div>
       </div>
 
-      <!-- ═══ COMIDA DE PERSONAL ═══ -->
-      <div class="sum-wrap">
-        <div class="sum-card">
-          <div class="sum-head" onclick="toggleExpand('cp')">
-            <span class="sum-title">🍽️ Comida de Personal</span>
-            <span class="sum-chev" id="cp-chev">▾</span>
-          </div>
-          <div class="cp-today">
-            <span class="cp-today-lbl" id="cp-today-lbl">Hoy</span>
-            <span class="cp-today-meal" id="cp-today-meal">—</span>
-          </div>
-          <div class="xp" id="cp-exp"></div>
-        </div>
-      </div>
-
-      <!-- ═══ PERSONAL HOY (Horarios) ═══ -->
-      <div class="og-wrap">
-        <div class="og-card hor-home" onclick="go('horarios')">
-          <div class="og-head">
-            <span class="og-title">🗓️ Personal en turno hoy</span>
-            <span class="nav-card-chev">›</span>
-          </div>
-          <div class="hor-today">
-            <div class="hor-today-num" id="hor-num">—</div>
-            <div class="hor-today-lbl">colaboradores<br>en turno hoy</div>
-          </div>
-          <div class="hor-depts" id="hor-depts"></div>
-        </div>
-      </div>
-
       <!-- ═══ SOLICITUDES A&B ═══ -->
       <div class="sum-wrap">
         <div class="sum-card">
@@ -523,6 +493,36 @@ main{padding:0;padding-bottom:28px;}
           <span class="nav-card-title">🎫 Reservas</span>
           <span class="nav-card-right"><span class="nav-card-count" id="home-res">—</span><span class="nav-card-chev">›</span></span>
         </button>
+      </div>
+
+      <!-- ═══ PERSONAL HOY (Horarios) ═══ -->
+      <div class="og-wrap">
+        <div class="og-card hor-home" onclick="go('horarios')">
+          <div class="og-head">
+            <span class="og-title">🗓️ Personal en turno hoy</span>
+            <span class="nav-card-chev">›</span>
+          </div>
+          <div class="hor-today">
+            <div class="hor-today-num" id="hor-num">—</div>
+            <div class="hor-today-lbl">colaboradores<br>en turno hoy</div>
+          </div>
+          <div class="hor-depts" id="hor-depts"></div>
+        </div>
+      </div>
+
+      <!-- ═══ COMIDA DE PERSONAL ═══ -->
+      <div class="sum-wrap">
+        <div class="sum-card">
+          <div class="sum-head" onclick="toggleExpand('cp')">
+            <span class="sum-title">🍽️ Comida de Personal</span>
+            <span class="sum-chev" id="cp-chev">▾</span>
+          </div>
+          <div class="cp-today">
+            <span class="cp-today-lbl" id="cp-today-lbl">Hoy</span>
+            <span class="cp-today-meal" id="cp-today-meal">—</span>
+          </div>
+          <div class="xp" id="cp-exp"></div>
+        </div>
       </div>
 
       <div class="last-updated" id="last-updated"></div>
