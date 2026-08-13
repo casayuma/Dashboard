@@ -179,10 +179,12 @@ main{padding:0;padding-bottom:28px;}
 .ab-num-block.tmrw .ab-num{color:var(--wool2);}
 .ab-num-lbl{font-size:0.55rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);font-weight:600;margin-top:6px;}
 .ab-detail-h{font-size:0.56rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--terra);font-weight:700;padding:9px 14px 4px;border-top:1px solid var(--border);}
-.ab-row{display:flex;align-items:center;gap:8px;padding:7px 14px;font-size:0.74rem;}
-.ab-row-hab{font-weight:700;color:var(--wool);min-width:38px;}
-.ab-row-tipo{flex:1;color:var(--wool2);}
-.ab-row-est{font-size:0.57rem;font-weight:700;padding:2px 7px;border-radius:4px;white-space:nowrap;}
+.ab-row{display:flex;align-items:flex-start;gap:8px;padding:8px 14px;font-size:0.74rem;}
+.ab-row-hab{font-weight:700;color:var(--wool);min-width:38px;flex-shrink:0;}
+.ab-row-mid{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0;}
+.ab-row-tipo{color:var(--wool2);line-height:1.3;}
+.ab-row-lugar{font-size:0.62rem;color:var(--muted);}
+.ab-row-est{font-size:0.57rem;font-weight:700;padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0;align-self:flex-start;}
 .ab-est-ok{background:#D0F0DC;color:var(--green);}
 .ab-est-pend{background:#FDECD0;color:var(--orange);}
 .ab-empty{padding:14px;text-align:center;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);}
@@ -199,6 +201,28 @@ main{padding:0;padding-bottom:28px;}
 .nav-card-chev{font-size:1.7rem;color:var(--caracol-accent);line-height:1;}
 .back-btn{display:inline-flex;align-items:center;gap:7px;margin:14px 14px 4px;background:var(--white);border:1px solid var(--border);color:var(--wool);font-family:'Courier New',Courier,monospace;font-size:0.72rem;font-weight:700;letter-spacing:0.03em;padding:9px 15px;border-radius:var(--radius-sm);cursor:pointer;transition:background .12s;}
 .back-btn:active{background:var(--sand);}
+
+/* ── HORARIOS DE PERSONAL ── */
+.hor-home{cursor:pointer;transition:border-color .12s;}
+.hor-home:active{border-color:var(--wool2);}
+.hor-today{display:flex;align-items:center;gap:14px;padding:2px 2px 12px;border-bottom:1px solid var(--border);margin-bottom:11px;}
+.hor-today-num{font-family:'PT Mono',monospace;font-size:2.6rem;font-weight:600;line-height:1;color:var(--cactus);min-width:74px;text-align:center;flex-shrink:0;}
+.hor-today-lbl{font-size:0.72rem;color:var(--muted);line-height:1.35;}
+.hor-depts{display:flex;flex-wrap:wrap;gap:6px;}
+.hor-chip{font-family:'Courier New',Courier,monospace;font-size:0.62rem;color:var(--wool2);background:var(--sand);border:1px solid var(--border);padding:4px 9px;border-radius:20px;white-space:nowrap;}
+.hor-chip strong{color:var(--cactus);}
+.day-sel{display:flex;gap:5px;padding:14px 14px 4px;}
+.day-btn{flex:1;min-width:0;background:var(--white);border:1px solid var(--border);color:var(--muted);font-family:'Courier New',Courier,monospace;font-size:0.66rem;font-weight:700;padding:9px 3px;border-radius:var(--radius-sm);cursor:pointer;transition:all .12s;}
+.day-btn.on{background:var(--cactus);color:#fff;border-color:var(--cactus);}
+.hor-dept-h{font-family:'PT Mono',monospace;font-size:0.92rem;font-weight:600;color:var(--wool);padding:17px 14px 6px;display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+.hor-dept-n{font-size:0.57rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);font-weight:600;white-space:nowrap;}
+.hor-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 14px;border-top:1px solid var(--border);}
+.hor-row-info{display:flex;flex-direction:column;gap:1px;min-width:0;}
+.hor-row-name{font-size:0.8rem;color:var(--wool);font-weight:600;}
+.hor-row-puesto{font-size:0.62rem;color:var(--muted);}
+.hor-val{font-family:'PT Mono',monospace;font-size:0.72rem;font-weight:700;padding:3px 9px;border-radius:5px;white-space:nowrap;flex-shrink:0;}
+.hor-on{background:#D0F0DC;color:var(--green);}
+.hor-code{background:var(--sand2);color:var(--wool2);}
 
 .sec-head{padding:18px 14px 8px;display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
 .sec-title{font-family:'PT Mono',monospace;font-size:1.2rem;font-weight:600;color:var(--wool);}
@@ -463,6 +487,21 @@ main{padding:0;padding-bottom:28px;}
         </div>
       </div>
 
+      <!-- ═══ PERSONAL HOY (Horarios) ═══ -->
+      <div class="og-wrap">
+        <div class="og-card hor-home" onclick="go('horarios')">
+          <div class="og-head">
+            <span class="og-title">🗓️ Personal en turno hoy</span>
+            <span class="nav-card-chev">›</span>
+          </div>
+          <div class="hor-today">
+            <div class="hor-today-num" id="hor-num">—</div>
+            <div class="hor-today-lbl">colaboradores<br>en turno hoy</div>
+          </div>
+          <div class="hor-depts" id="hor-depts"></div>
+        </div>
+      </div>
+
       <!-- ═══ SOLICITUDES A&B ═══ -->
       <div class="sum-wrap">
         <div class="sum-card">
@@ -494,6 +533,7 @@ main{padding:0;padding-bottom:28px;}
       <button class="back-btn" onclick="go('resumen')">← Inicio</button>
       <div class="sec-head"><div class="sec-title">🌅 Llegadas · hoy</div><div class="sec-count" id="cnt-arr">—</div></div>
       <div class="search-wrap"><input class="search-input" type="search" placeholder="Buscar huésped o habitación…" oninput="filterC('arr-cards',this.value)"></div>
+      <div class="pills"><button class="pill on" onclick="filterType('arr-cards','all',this)">Todos</button><button class="pill" onclick="filterType('arr-cards','S',this)">🛏 Standard</button><button class="pill" onclick="filterType('arr-cards','G',this)">🌿 Garden</button><button class="pill" onclick="filterType('arr-cards','R',this)">🌇 Rooftop</button><button class="pill" onclick="filterType('arr-cards','O',this)">🌊 Ocean</button></div>
       <div class="cards" id="arr-cards"></div>
       <div class="no-results" id="nores-arr-cards"><span class="nr-icon">🔍</span>No se encontraron resultados<div class="nr-hint">Intenta con otro nombre o número de habitación</div></div>
     </div>
@@ -503,6 +543,7 @@ main{padding:0;padding-bottom:28px;}
       <button class="back-btn" onclick="go('resumen')">← Inicio</button>
       <div class="sec-head"><div class="sec-title">🧳 Check-outs · hoy</div><div class="sec-count" style="background:var(--red);" id="cnt-co">—</div></div>
       <div class="search-wrap"><input class="search-input" type="search" placeholder="Buscar huésped o habitación…" oninput="filterC('co-cards',this.value)"></div>
+      <div class="pills"><button class="pill on" onclick="filterType('co-cards','all',this)">Todos</button><button class="pill" onclick="filterType('co-cards','S',this)">🛏 Standard</button><button class="pill" onclick="filterType('co-cards','G',this)">🌿 Garden</button><button class="pill" onclick="filterType('co-cards','R',this)">🌇 Rooftop</button><button class="pill" onclick="filterType('co-cards','O',this)">🌊 Ocean</button></div>
       <div class="cards" id="co-cards"></div>
       <div class="no-results" id="nores-co-cards"><span class="nr-icon">🔍</span>No se encontraron resultados<div class="nr-hint">Intenta con otro nombre o número de habitación</div></div>
     </div>
@@ -554,6 +595,14 @@ main{padding:0;padding-bottom:28px;}
       <div id="res-all" style="display:none;"></div>
       <div class="no-results" id="nores-res-all"><span class="nr-icon">🔍</span>No se encontraron resultados<div class="nr-hint">Intenta con otro nombre o tipo de reserva</div></div>
     </div>
+
+    <!-- HORARIOS DE PERSONAL -->
+    <div class="section" id="s-horarios">
+      <button class="back-btn" onclick="go('resumen')">← Inicio</button>
+      <div class="sec-head"><div class="sec-title">🗓️ Horarios de Personal</div></div>
+      <div class="day-sel" id="day-sel"></div>
+      <div id="hor-detail"></div>
+    </div>
   </main>
 </div>
 
@@ -562,7 +611,7 @@ main{padding:0;padding-bottom:28px;}
    PASSWORD (hash SHA-256 + bloqueo + expiración)
 ════════════════════════════════ */
 // SHA-256 de la contraseña — el texto plano nunca vive en el código fuente
-const PWD_HASH = '909cb815757c0ca18240a71e1b08e860f6a2088880bcb15c0bf53d825fbfa926';
+const PWD_HASH = '72dfbd81769eb39eb62d87cc9759e1084e20efd01b4a5bd1d810d1411f550d7b';
 const AUTH_TTL_MS = 12 * 60 * 60 * 1000;      // sesión válida 12h
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_MS = 5 * 60 * 1000;             // bloqueo 5 min tras 5 intentos fallidos
@@ -1118,18 +1167,20 @@ function buildPersonal(rows) {
 }
 
 function buildAmenidades(rows) {
-  const hi = findHeader(rows, ['fecha','estado','habitación','habitacion','tipo','amenidad']);
+  const hi = findHeader(rows, ['fecha','estado','habitación','habitacion','tipo','amenidad','lugar']);
   if (hi === -1) return [];
   const h = rows[hi].map(x => String(x||'').trim().toLowerCase());
   const iF = ci(h,'fecha','date','día','dia');
   const iE = ci(h,'estado','status');
   const iH = ci(h,'habitación','habitacion','room','hab','cuarto');
   const iT = ci(h,'tipo de amenidad','tipo','amenidad','detalle');
+  const iL = ci(h,'lugar de entrega','lugarentrega','lugar','entrega','dónde','donde');
   return rows.slice(hi+1).map(r => ({
     fecha:  iF>=0 ? String(r[iF]||'').trim() : '',
     estado: iE>=0 ? String(r[iE]||'').trim() : '',
     hab:    iH>=0 ? String(r[iH]||'').trim() : '',
     tipo:   iT>=0 ? String(r[iT]||'').trim() : '',
+    lugar:  iL>=0 ? String(r[iL]||'').trim() : '',
   })).filter(x => x.fecha);
 }
 
@@ -1148,6 +1199,123 @@ function ameniCounts(AMENI) {
   // El número grande cuenta SOLO pendientes (todo lo que no está Entregada)
   const pend = list => list.filter(a => !/entreg/i.test(a.estado)).length;
   return { hoy: pend(hoyList), manana: pend(mananaList), hoyList, mananaList };
+}
+
+/* ════════════════════════════════
+   HORARIOS DE PERSONAL
+════════════════════════════════ */
+const HORARIOS_PUB = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTjI5vMFzwfM8edD11uMi1bdAWJcHCD33L7fiuARj1r0DvJcy10k2yZ2AGCQuGzTO9ZAjhV6fTj_BJB/pub';
+const HORARIOS_DEPTS = [
+  { dept:'Administración', gid:'1564162242' },
+  { dept:'Restaurante',    gid:'1343077568' },
+  { dept:'Cocina',         gid:'1340828949' },
+  { dept:'Mantenimiento',  gid:'974750482'  },
+  { dept:'Ama de Llaves',  gid:'187997823'  },
+  { dept:'Recepción',      gid:'829774617'  },
+];
+const DIAS_SEM  = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const DIAS_ABBR = { Lunes:'Lun', Martes:'Mar', 'Miércoles':'Mié', Jueves:'Jue', Viernes:'Vie', 'Sábado':'Sáb', Domingo:'Dom' };
+let HOR_DATA = [];
+
+// Parser robusto (maneja comillas y saltos de línea dentro de celdas — el header trae "Clave\nColaborador")
+function parseCSVsafe(text){
+  const rows=[]; let row=[], cur='', inQ=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i], n=text[i+1];
+    if(inQ){
+      if(c==='"'&&n==='"'){cur+='"';i++;}
+      else if(c==='"'){inQ=false;}
+      else cur+=c;
+    } else {
+      if(c==='"'){inQ=true;}
+      else if(c===','){row.push(cur);cur='';}
+      else if(c==='\r'){/* skip */}
+      else if(c==='\n'){row.push(cur);rows.push(row);row=[];cur='';}
+      else cur+=c;
+    }
+  }
+  if(cur!==''||row.length){row.push(cur);rows.push(row);}
+  return rows.map(r=>r.map(x=>x.trim()));
+}
+
+function todayDiaName(){ const j=new Date().getDay(); return DIAS_SEM[(j+6)%7]; }
+function esTurno(v){ return /\d/.test(v||''); }   // un horario siempre trae dígitos; los códigos no
+
+function parseDeptHorario(rows){
+  let hi=-1;
+  for(let i=0;i<rows.length;i++){
+    const low=rows[i].map(x=>String(x||'').toLowerCase());
+    if(low.includes('nombre') && low.includes('puesto') && low.some(x=>x.includes('lunes'))){ hi=i; break; }
+  }
+  if(hi===-1) return [];
+  const h=rows[hi].map(x=>String(x||'').toLowerCase());
+  const iClave=h.findIndex(x=>x.includes('clave'));
+  const iNom=h.indexOf('nombre');
+  const iPue=h.indexOf('puesto');
+  const iNotas=h.findIndex(x=>x.includes('nota'));
+  const dayIdx={}; DIAS_SEM.forEach(dn=>{ dayIdx[dn]=h.findIndex(x=>x.includes(dn.toLowerCase())); });
+  const cols=[];
+  for(let i=hi+1;i<rows.length;i++){
+    const r=rows[i];
+    if(/leyenda/i.test(String(r[0]||''))) break;   // corta en la leyenda de códigos
+    const nombre=String((iNom>=0?r[iNom]:'')||'').trim();
+    const clave=String((iClave>=0?r[iClave]:'')||'').trim();
+    if(!nombre && !clave) continue;                 // salta filas vacías
+    const dias={}; DIAS_SEM.forEach(dn=>{ const ci=dayIdx[dn]; dias[dn]= ci>=0?String(r[ci]||'').trim():''; });
+    cols.push({ clave, nombre, puesto:String((iPue>=0?r[iPue]:'')||'').trim(), dias, notas:String((iNotas>=0?r[iNotas]:'')||'').trim() });
+  }
+  return cols;
+}
+
+async function fetchHorarios(){
+  const jobs = HORARIOS_DEPTS.map(async d=>{
+    try{
+      const res=await fetch(HORARIOS_PUB+'?gid='+d.gid+'&single=true&output=csv');
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      return { dept:d.dept, colaboradores: parseDeptHorario(parseCSVsafe(await res.text())) };
+    }catch(e){ console.warn('Horario '+d.dept+':', e); return { dept:d.dept, colaboradores:[] }; }
+  });
+  return Promise.all(jobs);
+}
+
+function renderHorarios(){
+  const today=todayDiaName();
+  let total=0; const chips=[];
+  HOR_DATA.forEach(d=>{
+    const n=d.colaboradores.filter(c=>esTurno(c.dias[today])).length;
+    total+=n;
+    chips.push(`<span class="hor-chip">${esc(d.dept)} · <strong>${n}</strong></span>`);
+  });
+  const hn=document.getElementById('hor-num');   if(hn) hn.textContent=total;
+  const hd=document.getElementById('hor-depts'); if(hd) hd.innerHTML=chips.join('');
+  const ds=document.getElementById('day-sel');
+  if(ds) ds.innerHTML=DIAS_SEM.map(dn=>`<button class="day-btn ${dn===today?'on':''}" onclick="selDia('${dn}',this)">${DIAS_ABBR[dn]}</button>`).join('');
+  renderHorariosDia(today);
+}
+
+function selDia(dn,btn){
+  document.querySelectorAll('#day-sel .day-btn').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  renderHorariosDia(dn);
+}
+
+function renderHorariosDia(dn){
+  const cont=document.getElementById('hor-detail'); if(!cont) return;
+  let html='';
+  HOR_DATA.forEach(d=>{
+    // sólo colaboradores con un valor definido ese día (turno o código); ocultamos vacíos
+    const defs=d.colaboradores.filter(c=>String(c.dias[dn]||'').trim()!=='');
+    if(!defs.length) return;
+    defs.sort((a,b)=>(esTurno(a.dias[dn])?0:1)-(esTurno(b.dias[dn])?0:1));
+    const enTurno=defs.filter(c=>esTurno(c.dias[dn])).length;
+    html+=`<div class="hor-dept-h">${esc(d.dept)}<span class="hor-dept-n">${enTurno} en turno</span></div>`;
+    defs.forEach(c=>{
+      const val=String(c.dias[dn]||'').trim();
+      const cls=esTurno(val)?'hor-on':'hor-code';
+      html+=`<div class="hor-row"><div class="hor-row-info"><span class="hor-row-name">${esc(c.nombre)}</span><span class="hor-row-puesto">${esc(c.puesto)}</span></div><span class="hor-val ${cls}">${esc(val)}</span></div>`;
+    });
+  });
+  cont.innerHTML = html || '<div class="ab-empty">Sin horarios cargados para este día</div>';
 }
 
 /* ════════════════════════════════
@@ -1184,6 +1352,9 @@ async function loadDashboard() {
     const AMENIDADES= buildAmenidades(ameRows);
 
     renderDashboard(INHOUSE, ARRIVALS, CHECKOUTS, OCC, RESERVAS, PERSONAL, AMENIDADES);
+
+    // Horarios: se cargan aparte para no retrasar la pintura del dashboard
+    fetchHorarios().then(data=>{ HOR_DATA=data; renderHorarios(); }).catch(e=>console.warn('Horarios:', e));
 
   } catch(e) {
     console.error(e);
@@ -1243,7 +1414,7 @@ function renderDashboard(INHOUSE, ARRIVALS, CHECKOUTS, OCC, RESERVAS, PERSONAL, 
       const ent=list.filter(a=>/entreg/i.test(a.estado)).length;
       const pen=list.length-ent;
       const meta=[pen?pen+' pendiente'+(pen!==1?'s':''):'', ent?ent+' entregada'+(ent!==1?'s':''):''].filter(Boolean).join(' · ');
-      return `<div class="ab-detail-h">${title} — ${meta}</div>`+list.map(a=>`<div class="ab-row"><span class="ab-row-hab">${esc(a.hab||'—')}</span><span class="ab-row-tipo">${esc(a.tipo||'')}</span>${a.estado?`<span class="ab-row-est ab-est-${/entreg/i.test(a.estado)?'ok':'pend'}">${esc(a.estado)}</span>`:''}</div>`).join('');
+      return `<div class="ab-detail-h">${title} — ${meta}</div>`+list.map(a=>`<div class="ab-row"><span class="ab-row-hab">${esc(a.hab||'—')}</span><div class="ab-row-mid"><span class="ab-row-tipo">${esc(a.tipo||'—')}</span>${a.lugar?`<span class="ab-row-lugar">📍 ${esc(a.lugar)}</span>`:''}</div>${a.estado?`<span class="ab-row-est ab-est-${/entreg/i.test(a.estado)?'ok':'pend'}">${esc(a.estado)}</span>`:''}</div>`).join('');
     };
     const html=blk('Hoy',AC.hoyList)+blk('Mañana',AC.mananaList);
     abe.innerHTML = html || '<div class="ab-empty">Sin amenidades programadas</div>';
