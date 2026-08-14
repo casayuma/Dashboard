@@ -205,6 +205,7 @@ main{padding:0;padding-bottom:28px;}
 /* ── HORARIOS DE PERSONAL ── */
 .hor-home{cursor:pointer;transition:border-color .12s;}
 .hor-home:active{border-color:var(--wool2);}
+.hor-week{font-family:'Courier New',Courier,monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);padding:12px 14px 0;}
 .hor-today{display:flex;align-items:center;gap:14px;padding:2px 2px 12px;border-bottom:1px solid var(--border);margin-bottom:11px;}
 .hor-today-num{font-family:'PT Mono',monospace;font-size:2.6rem;font-weight:600;line-height:1;color:var(--cactus);min-width:74px;text-align:center;flex-shrink:0;}
 .hor-today-lbl{font-size:0.72rem;color:var(--muted);line-height:1.35;}
@@ -600,6 +601,7 @@ main{padding:0;padding-bottom:28px;}
     <div class="section" id="s-horarios">
       <button class="back-btn" onclick="go('resumen')">← Inicio</button>
       <div class="sec-head"><div class="sec-title">🗓️ Horarios de Personal</div></div>
+      <div class="hor-week" id="hor-week"></div>
       <div class="day-sel" id="day-sel"></div>
       <div id="hor-detail"></div>
     </div>
@@ -1204,15 +1206,16 @@ function ameniCounts(AMENI) {
 /* ════════════════════════════════
    HORARIOS DE PERSONAL
 ════════════════════════════════ */
-const HORARIOS_PUB = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTjI5vMFzwfM8edD11uMi1bdAWJcHCD33L7fiuARj1r0DvJcy10k2yZ2AGCQuGzTO9ZAjhV6fTj_BJB/pub';
+const HORARIOS_SID = '1olVx0EC-kSUZesVv9Wk01j7uznhB_LSjwjPC2u6L6ds';
 const HORARIOS_DEPTS = [
-  { dept:'Administración', gid:'1564162242' },
-  { dept:'Restaurante',    gid:'1343077568' },
-  { dept:'Cocina',         gid:'1340828949' },
-  { dept:'Mantenimiento',  gid:'974750482'  },
-  { dept:'Ama de Llaves',  gid:'187997823'  },
-  { dept:'Recepción',      gid:'829774617'  },
+  { dept:'Administración', gid:'1059226046' },
+  { dept:'Restaurante',    gid:'1214164049' },
+  { dept:'Cocina',         gid:'654539486'  },
+  { dept:'Mantenimiento',  gid:'1853088651' },
+  { dept:'Ama de Llaves',  gid:'2075690502' },
+  { dept:'Recepción',      gid:'2018690768' },
 ];
+let HOR_WEEK = '';
 const DIAS_SEM  = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 const DIAS_ABBR = { Lunes:'Lun', Martes:'Mar', 'Miércoles':'Mié', Jueves:'Jue', Viernes:'Vie', 'Sábado':'Sáb', Domingo:'Dom' };
 let HOR_DATA = [];
@@ -1241,13 +1244,24 @@ function parseCSVsafe(text){
 function todayDiaName(){ const j=new Date().getDay(); return DIAS_SEM[(j+6)%7]; }
 function esTurno(v){ return /\d/.test(v||''); }   // un horario siempre trae dígitos; los códigos no
 
+function parseWeek(rows){
+  for(const r of rows){
+    if(/semana del/i.test(String(r[0]||''))){
+      const ds=r.filter(c=>/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(String(c||'').trim()));
+      if(ds.length>=2) return ds[0]+' al '+ds[1];
+      if(ds.length===1) return ds[0];
+    }
+  }
+  return '';
+}
+
 function parseDeptHorario(rows){
   let hi=-1;
   for(let i=0;i<rows.length;i++){
     const low=rows[i].map(x=>String(x||'').toLowerCase());
     if(low.includes('nombre') && low.includes('puesto') && low.some(x=>x.includes('lunes'))){ hi=i; break; }
   }
-  if(hi===-1) return [];
+  if(hi===-1) return { week:'', colaboradores:[] };
   const h=rows[hi].map(x=>String(x||'').toLowerCase());
   const iClave=h.findIndex(x=>x.includes('clave'));
   const iNom=h.indexOf('nombre');
@@ -1259,21 +1273,23 @@ function parseDeptHorario(rows){
     const r=rows[i];
     if(/leyenda/i.test(String(r[0]||''))) break;   // corta en la leyenda de códigos
     const nombre=String((iNom>=0?r[iNom]:'')||'').trim();
+    if(!nombre) continue;                            // salta filas sin colaborador (OCUPACIÓN, vacías)
     const clave=String((iClave>=0?r[iClave]:'')||'').trim();
-    if(!nombre && !clave) continue;                 // salta filas vacías
     const dias={}; DIAS_SEM.forEach(dn=>{ const ci=dayIdx[dn]; dias[dn]= ci>=0?String(r[ci]||'').trim():''; });
     cols.push({ clave, nombre, puesto:String((iPue>=0?r[iPue]:'')||'').trim(), dias, notas:String((iNotas>=0?r[iNotas]:'')||'').trim() });
   }
-  return cols;
+  return { week: parseWeek(rows), colaboradores: cols };
 }
 
 async function fetchHorarios(){
   const jobs = HORARIOS_DEPTS.map(async d=>{
     try{
-      const res=await fetch(HORARIOS_PUB+'?gid='+d.gid+'&single=true&output=csv');
+      const url='https://docs.google.com/spreadsheets/d/'+HORARIOS_SID+'/export?format=csv&gid='+d.gid;
+      const res=await fetch(url);
       if(!res.ok) throw new Error('HTTP '+res.status);
-      return { dept:d.dept, colaboradores: parseDeptHorario(parseCSVsafe(await res.text())) };
-    }catch(e){ console.warn('Horario '+d.dept+':', e); return { dept:d.dept, colaboradores:[] }; }
+      const parsed=parseDeptHorario(parseCSVsafe(await res.text()));
+      return { dept:d.dept, colaboradores: parsed.colaboradores, week: parsed.week };
+    }catch(e){ console.warn('Horario '+d.dept+':', e); return { dept:d.dept, colaboradores:[], week:'' }; }
   });
   return Promise.all(jobs);
 }
@@ -1288,6 +1304,8 @@ function renderHorarios(){
   });
   const hn=document.getElementById('hor-num');   if(hn) hn.textContent=total;
   const hd=document.getElementById('hor-depts'); if(hd) hd.innerHTML=chips.join('');
+  HOR_WEEK = (HOR_DATA.find(d=>d.week)||{}).week || '';
+  const hw=document.getElementById('hor-week'); if(hw) hw.textContent = HOR_WEEK ? 'Semana del '+HOR_WEEK : '';
   const ds=document.getElementById('day-sel');
   if(ds) ds.innerHTML=DIAS_SEM.map(dn=>`<button class="day-btn ${dn===today?'on':''}" onclick="selDia('${dn}',this)">${DIAS_ABBR[dn]}</button>`).join('');
   renderHorariosDia(today);
