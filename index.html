@@ -1359,12 +1359,12 @@ async function loadDashboard() {
       const perRes = await fetch(sheetURL(SHEETS.personal));
       const perTxt = await perRes.text();
       perRows = parseCSV(perTxt);
-      // La frase vive en A11 (fila 11). Se lee del CSV crudo porque parseCSV descarta filas vacías.
+      // La frase vive en D2 (fila 2). Se lee del CSV crudo porque parseCSV descarta filas vacías.
       const perLines = perTxt.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
-      const a11 = perLines[10] || '';
-      perQuote = a11.startsWith('"')
-        ? ((a11.match(/^"((?:[^"]|"")*)"/) || [,''])[1]).replace(/""/g,'"').trim()
-        : (a11.split(',')[0] || '').trim();
+      const d2 = perLines[10] || '';
+      perQuote = d2.startsWith('"')
+        ? ((d2.match(/^"((?:[^"]|"")*)"/) || [,''])[1]).replace(/""/g,'"').trim()
+        : (d2.split(',')[0] || '').trim();
     } catch(e){ console.warn('Personal:', e); }
     setStep('Cargando Amenidades…');
     try { ameRows = await fetchSheet(SHEETS.amenidades); } catch(e){ console.warn('Amenidades:', e); }
