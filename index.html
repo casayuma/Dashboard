@@ -231,6 +231,9 @@ main{padding:0;padding-bottom:28px;}
 .hor-cta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--terra);color:var(--white);font-family:'Courier New',Courier,monospace;font-weight:700;font-size:0.8rem;letter-spacing:0.02em;padding:12px 22px;border-radius:var(--radius-sm);text-decoration:none;transition:background .12s;}
 .hor-cta-btn:active{background:var(--terra2);}
 .hor-cta-note{margin-top:14px;font-size:0.64rem;color:var(--muted);}
+.hor-dept-preview{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 8px;margin:0 auto 18px;max-width:360px;}
+.hor-dept-chip{display:inline-flex;align-items:center;gap:5px;background:var(--sand2);border:1px solid var(--border);border-radius:20px;padding:4px 10px 4px 8px;font-size:0.62rem;color:var(--wool2);font-family:'Courier New',Courier,monospace;font-weight:600;}
+.hor-dept-chip .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 
 .sec-head{padding:18px 14px 8px;display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
 .sec-title{font-family:'PT Mono',monospace;font-size:1.2rem;font-weight:600;color:var(--wool);}
@@ -1220,6 +1223,13 @@ function ameniCounts(AMENI) {
 ════════════════════════════════ */
 const BITACORA_URL = 'https://claude.ai/code/artifact/da5d646f-3b9e-44ad-bab1-fef44ebfc3c4';
 const BITACORA_VER_URL = BITACORA_URL + '?ro=1';
+// Mismos departamentos y colores que la Bitácora, solo para la vista previa —
+// los nombres de departamento casi no cambian; el personal y horarios sí,
+// y esos NUNCA se duplican aquí, se consultan en vivo allá.
+const HOR_DEPTS_PREVIEW = [
+  ['Administración','#3E6E8E'], ['Restaurante','#B5504A'], ['Cocina','#6E8C4A'],
+  ['Mantenimiento','#8C5A2B'], ['Ama de Llaves','#6B5B95'], ['Recepción','#2F8F7A'],
+];
 
 function renderHorarios(){
   const hn = document.getElementById('hor-num');
@@ -1227,17 +1237,21 @@ function renderHorarios(){
   const hd = document.getElementById('hor-depts');
   if (hd) hd.innerHTML = '<span class="hor-chip">Solo lectura</span>';
   const hw = document.getElementById('hor-week');
-  if (hw) hw.textContent = '';
+  if (hw) hw.textContent = 'Personal sincronizado automáticamente con nómina cada día';
   const ds = document.getElementById('day-sel');
   if (ds) ds.innerHTML = '';
+  const deptChips = HOR_DEPTS_PREVIEW.map(([name,color]) =>
+    `<span class="hor-dept-chip"><span class="dot" style="background:${color}"></span>${esc(name)}</span>`
+  ).join('');
   const cont = document.getElementById('hor-detail');
   if (cont) cont.innerHTML = `
     <div class="hor-cta-card">
       <div class="hor-cta-icon">🗓️</div>
-      <div class="hor-cta-title">Horarios — vista informativa</div>
-      <div class="hor-cta-sub">Cada líder de departamento captura y actualiza su horario semanal en la Bitácora de Turnos. Desde aquí solo puedes consultarlo — la edición está reservada a los líderes desde el portal de Finanzas.</div>
-      <a class="hor-cta-btn" href="${BITACORA_VER_URL}" target="_blank" rel="noopener">Ver Bitácora de Turnos ↗</a>
-      <div class="hor-cta-note">Se abre en una pestaña nueva · solo lectura</div>
+      <div class="hor-cta-title">¿Quién está de turno?</div>
+      <div class="hor-cta-sub">La Bitácora de Turnos tiene el horario completo, día por día, de los 6 departamentos: cuántos colaboradores trabajan hoy y el horario de cada quien. Cada líder captura y actualiza el suyo — aquí solo se consulta, nada se puede editar.</div>
+      <div class="hor-dept-preview">${deptChips}</div>
+      <a class="hor-cta-btn" href="${BITACORA_VER_URL}" target="_blank" rel="noopener">Ver quién está de turno ↗</a>
+      <div class="hor-cta-note">Se abre en una pestaña nueva · pestaña "Todos", solo lectura</div>
     </div>`;
 }
 
