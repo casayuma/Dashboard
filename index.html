@@ -498,19 +498,12 @@ main{padding:0;padding-bottom:28px;}
         </button>
       </div>
 
-      <!-- ═══ PERSONAL HOY (Horarios) ═══ -->
-      <div class="og-wrap">
-        <div class="og-card hor-home" onclick="go('horarios')">
-          <div class="og-head">
-            <span class="og-title">🗓️ Personal en turno hoy</span>
-            <span class="nav-card-chev">›</span>
-          </div>
-          <div class="hor-today">
-            <div class="hor-today-num" id="hor-num">—</div>
-            <div class="hor-today-lbl">colaboradores<br>en turno hoy</div>
-          </div>
-          <div class="hor-depts" id="hor-depts"></div>
-        </div>
+      <!-- ═══ HORARIOS (enlace externo) ═══ -->
+      <div class="sum-wrap">
+        <a class="nav-card" href="https://script.google.com/macros/s/AKfycbxDa9t3s3EtCfg4hdhEWAz7r3PbCQcMznQBlP6wD_EkVz4zrN_-utGZQb77YIX2Ye_j/exec" target="_blank" rel="noopener" style="text-decoration:none;">
+          <span class="nav-card-title">🗓️ Horarios de Personal</span>
+          <span class="nav-card-right"><span class="nav-card-chev">↗</span></span>
+        </a>
       </div>
 
       <!-- ═══ COMIDA DE PERSONAL ═══ -->
@@ -599,15 +592,6 @@ main{padding:0;padding-bottom:28px;}
       <div class="no-results" id="nores-res-all"><span class="nr-icon">🔍</span>No se encontraron resultados<div class="nr-hint">Intenta con otro nombre o tipo de reserva</div></div>
     </div>
 
-    <!-- HORARIOS DE PERSONAL -->
-    <div class="section" id="s-horarios">
-      <button class="back-btn" onclick="go('resumen')">← Inicio</button>
-      <div class="sec-head"><div class="sec-title">🗓️ Horarios de Personal</div></div>
-      <a class="hor-link-btn" href="https://script.google.com/macros/s/AKfycbxDa9t3s3EtCfg4hdhEWAz7r3PbCQcMznQBlP6wD_EkVz4zrN_-utGZQb77YIX2Ye_j/exec" target="_blank" rel="noopener">🌐 Abrir horarios universales →</a>
-      <div class="hor-week" id="hor-week"></div>
-      <div class="day-sel" id="day-sel"></div>
-      <div id="hor-detail"></div>
-    </div>
   </main>
 </div>
 
@@ -1384,9 +1368,6 @@ async function loadDashboard() {
     const AMENIDADES= buildAmenidades(ameRows);
 
     renderDashboard(INHOUSE, ARRIVALS, CHECKOUTS, OCC, RESERVAS, PERSONAL, AMENIDADES);
-
-    // Horarios: se cargan aparte para no retrasar la pintura del dashboard
-    fetchHorarios().then(data=>{ HOR_DATA=data; renderHorarios(); }).catch(e=>console.warn('Horarios:', e));
 
   } catch(e) {
     console.error(e);
